@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: cli-password-manager
+
+  shell:
+    command:
+      quit:
+        enabled: false
+    interactive:
+      enabled: true
+
+shell:
+  out:
+    info: CYAN
+    success: GREEN
+    warning: YELLOW
+    error: RED
+  clearClipboardAfterSeconds: 30
+  file:
+    userHome: user.home
+    rootDirectory: .cli-password-manager
+    keyStoreFile: vault.ks
+    accessFile: access.json
+    MP: validation.bin
+
+api:
+  hibp:
+    url: https://api.pwnedpasswords.com/range/
+    delay: 1500 # ms
