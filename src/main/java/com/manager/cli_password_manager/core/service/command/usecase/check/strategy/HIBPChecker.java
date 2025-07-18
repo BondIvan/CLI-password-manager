@@ -43,6 +43,7 @@ public class HIBPChecker implements Checker {
     }
 
     private final ApiLimiter limiter;
+    private HIBPChecker self; //TODO Проверить работу с self
 
     public HIBPChecker(@Qualifier("HIBPChecker") ApiLimiter apiLimiter) {
         this.limiter = apiLimiter;
@@ -52,7 +53,7 @@ public class HIBPChecker implements Checker {
     public boolean isPwned(String password) throws CheckerException {
         try {
             String hash = makeSHA1Hash(password);
-            return checkHashViaHIBP(hash);
+            return self.checkHashViaHIBP(hash);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new HIBPCheckerException("Checking was interrupted", e);
@@ -66,7 +67,12 @@ public class HIBPChecker implements Checker {
         return CheckingApi.HIBP;
     }
 
+    @Cacheable(
+         cacheNames = "persist-file-ehcache",
+            key = "#root.target.getShortHashForCache(fullHash)"
+    )
     public boolean checkHashViaHIBP(String fullHash) throws InterruptedException {
+        log.info("Значение [{}] не найдено в кэше, проверяем вручную", getShortHashForCache(fullHash));
         limiter.doDelay();
         return viaHIBP(fullHash);
     }
@@ -123,4 +129,7 @@ public class HIBPChecker implements Checker {
         return hashNumber.toString();
     }
 
+    public String getShortHashForCache(String fullHash) {
+        return fullHash.substring(0, 5) + fullHash.substring(fullHash.length() - 5);
+    }
 }

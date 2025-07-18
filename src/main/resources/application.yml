@@ -9,6 +9,12 @@ spring:
     interactive:
       enabled: true
 
+  cache:
+    type: jcache
+    cache-names: checkResultFileBasedCache
+    jcache:
+      provider: org.ehcache.jsr107.EhcacheCachingProvider
+
 shell:
   out:
     info: CYAN
@@ -22,6 +28,11 @@ shell:
     keyStoreFile: vault.ks
     accessFile: access.json
     MP: validation.bin
+  cache:
+    size: 10 # MB
+    expiration-time: 30 # now sec| need day
+    cache-directory: checking-result-cache
+
 
 api:
   hibp:
