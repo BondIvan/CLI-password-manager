@@ -51,7 +51,7 @@ public abstract class AbstractFileCreator {
                 }
             }
         } catch (IOException e) {
-            log.error("Cannot create file/directory by next path - [{}] by reason: {}", path, e.getMessage());
+            log.error("Cannot create file/directory by next path - [{}] by reason: {}", path, e.getCause().getMessage());
             throw new FileCreatorException("Creating file/directory error: " + e.getMessage(), e);
         }
 
@@ -92,7 +92,8 @@ public abstract class AbstractFileCreator {
     private void setPosixPermissions(Path filePath) throws IOException {
         Set<PosixFilePermission> permissions = EnumSet.of(
                 PosixFilePermission.OWNER_READ,
-                PosixFilePermission.OWNER_WRITE
+                PosixFilePermission.OWNER_WRITE,
+                PosixFilePermission.OWNER_EXECUTE
         );
 
         Files.setPosixFilePermissions(filePath, permissions);
