@@ -50,3 +50,4 @@ You can use the "help" command to get information about all commands. For more d
     The application requires access to the system's graphical toolkit for clipboard functionality.
     Run the application from your terminal using the following command: \
   ```java -Djava.awt.headless=false -jar target/cli-password-manager-0.0.1-SNAPSHOT.jar```
+    If the system does not have a graphical interface, you should change the ```-Djava.awt.headless``` flag to *true*
