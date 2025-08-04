@@ -1,9 +1,13 @@
 package com.manager.cli_password_manager.core.service.file.loader;
 
+import com.manager.cli_password_manager.core.exception.Initialization.InitializerException;
 import com.manager.cli_password_manager.core.exception.file.loader.FileLoaderException;
 import com.manager.cli_password_manager.core.service.file.creator.SecureFileCreator;
+import com.manager.cli_password_manager.core.service.file.creator.directory.ApplicationDirectoryManager;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
@@ -11,40 +15,43 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
+@DependsOn("applicationDirectoryProvider")
+@Slf4j
 @Component
 public class KeyStoreLoader {
     private static final String KEYSTORE_TYPE = "PKCS12";
 
-    @Value("${shell.file.userHome}")
-    private String userHome;
-    @Value("${shell.file.rootDirectory}")
-    private String directoryName;
     @Value("${shell.file.keyStoreFile}")
     private String vaultFileName;
 
     private Path vaultPathFile;
 
     private final SecureFileCreator fileCreator;
+    private final ApplicationDirectoryManager directoryManager;
 
-    public KeyStoreLoader(SecureFileCreator fileCreator) {
+    public KeyStoreLoader(SecureFileCreator fileCreator,
+                          ApplicationDirectoryManager directoryManager) {
         this.fileCreator = fileCreator;
+        this.directoryManager = directoryManager;
     }
 
     @PostConstruct
     public void init() {
-        String homePath = System.getProperty(userHome);
-        Path appDataDir = Paths.get(homePath, directoryName);
+        try {
+            if(!directoryManager.isApplicationDirectoryExist())
+                throw new FileLoaderException("Application directory not found.");
 
-        if(!Files.exists(appDataDir))
-            throw new FileLoaderException("Application directory not found");
-
-        this.vaultPathFile = appDataDir.resolve(vaultFileName);
+            Path dirPath = directoryManager.getApplicationDirectory();
+            this.vaultPathFile = dirPath.resolve(vaultFileName);
+        } catch (Exception e) {
+            log.error("Failed to initialize vault loader service: {}", e.getMessage());
+            throw new InitializerException("Failed to initialize vault loader service: " + e.getMessage());
+        }
     }
 
     public KeyStore loadKeyStore(char[] password) {

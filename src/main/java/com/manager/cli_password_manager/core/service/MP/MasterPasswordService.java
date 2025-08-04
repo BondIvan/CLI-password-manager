@@ -1,30 +1,31 @@
 package com.manager.cli_password_manager.core.service.MP;
 
+import com.manager.cli_password_manager.core.exception.Initialization.InitializerException;
 import com.manager.cli_password_manager.core.exception.file.loader.FileLoaderException;
 import com.manager.cli_password_manager.core.exception.security.EncryptionException;
 import com.manager.cli_password_manager.core.exception.security.MasterPasswordException;
 import com.manager.cli_password_manager.core.service.file.creator.SecureFileCreator;
+import com.manager.cli_password_manager.core.service.file.creator.directory.ApplicationDirectoryManager;
 import com.manager.cli_password_manager.security.EncryptionUtils;
 import com.manager.cli_password_manager.security.encrypt.Encrypting;
 import com.manager.cli_password_manager.security.encrypt.aes.AES_GCM;
 import com.manager.cli_password_manager.security.hash.Hashing;
 import com.manager.cli_password_manager.security.hash.argon2.Argon2;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
+@Slf4j
 @Service
+@DependsOn("applicationDirectoryProvider")
 public class MasterPasswordService {
-    @Value("${shell.file.userHome}")
-    private String userHome;
-    @Value("${shell.file.rootDirectory}")
-    private String directoryName;
     @Value("${shell.file.MP}")
     private String masterPasswordFileName; //TODO current - asd
 
@@ -33,22 +34,30 @@ public class MasterPasswordService {
     private final Encrypting aesGcm;
     private final Hashing argon2;
     private final SecureFileCreator fileCreator;
+    private final ApplicationDirectoryManager directoryManager;
 
-    public MasterPasswordService(AES_GCM aesGcm, Argon2 argon2, SecureFileCreator fileCreator) {
+    public MasterPasswordService(AES_GCM aesGcm,
+                                 Argon2 argon2,
+                                 SecureFileCreator fileCreator,
+                                 ApplicationDirectoryManager directoryManager) {
         this.aesGcm = aesGcm;
         this.argon2 = argon2;
         this.fileCreator = fileCreator;
+        this.directoryManager = directoryManager;
     }
 
     @PostConstruct
     public void init() {
-        String homePath = System.getProperty(userHome);
-        Path appDataDir = Paths.get(homePath, directoryName);
+        try {
+            if (!directoryManager.isApplicationDirectoryExist())
+                throw new FileLoaderException("Application directory not found.");
 
-        if(!Files.exists(appDataDir))
-            throw new FileLoaderException("Application directory not found");
-
-        this.masterPasswordPathFile = appDataDir.resolve(masterPasswordFileName);
+            Path dirPath = directoryManager.getApplicationDirectory();
+            this.masterPasswordPathFile = dirPath.resolve(masterPasswordFileName);
+        } catch (Exception e) {
+            log.error("Failed to initialize master password service: {}", e.getMessage());
+            throw new InitializerException("Failed to initialize master password service: " + e.getMessage());
+        }
     }
 
     public boolean isExist() {

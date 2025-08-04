@@ -4,28 +4,26 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.manager.cli_password_manager.core.entity.Note;
+import com.manager.cli_password_manager.core.exception.Initialization.InitializerException;
 import com.manager.cli_password_manager.core.exception.file.loader.FileCreatorException;
 import com.manager.cli_password_manager.core.exception.file.loader.FileLoaderException;
 import com.manager.cli_password_manager.core.service.file.creator.SecureFileCreator;
+import com.manager.cli_password_manager.core.service.file.creator.directory.ApplicationDirectoryManager;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 @Slf4j
 @Component
+@DependsOn("applicationDirectoryProvider")
 public class AccessLoader {
-    @Value("${shell.file.userHome}")
-    private String userHome;
-    @Value("${shell.file.rootDirectory}")
-    private String directoryName;
     @Value("${shell.file.accessFile}")
     private  String accessFileName;
 
@@ -33,21 +31,28 @@ public class AccessLoader {
 
     private final ObjectMapper objectMapper;
     private final SecureFileCreator fileCreator;
+    private final ApplicationDirectoryManager directoryManager;
 
-    public AccessLoader(SecureFileCreator fileCreator, ObjectMapper objectMapper) {
+    public AccessLoader(SecureFileCreator fileCreator,
+                        ObjectMapper objectMapper,
+                        ApplicationDirectoryManager directoryManager) {
         this.fileCreator = fileCreator;
         this.objectMapper = objectMapper;
+        this.directoryManager = directoryManager;
     }
 
     @PostConstruct
     public void init() {
-        String homePath = System.getProperty(userHome);
-        Path appDataDir = Paths.get(homePath, directoryName);
+        try {
+            if (!directoryManager.isApplicationDirectoryExist())
+                throw new FileLoaderException("Application directory not found.");
 
-        if(!Files.exists(appDataDir))
-            throw new FileLoaderException("Application directory not found");
-
-        this.accessFilePath = appDataDir.resolve(accessFileName);
+            Path dirPath = directoryManager.getApplicationDirectory();
+            this.accessFilePath = dirPath.resolve(accessFileName);
+        } catch (Exception e) {
+            log.error("Failed to initialize access loader service: {}", e.getMessage());
+            throw new InitializerException("Failed to initialize access loader service: " + e.getMessage());
+        }
     }
 
     public Map<String, List<Note>> loadAccess() {
