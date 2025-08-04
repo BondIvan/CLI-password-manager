@@ -36,6 +36,10 @@ public class ClipboardService {
         });
     }
 
+    public boolean isClipboardAvailable() {
+        return clipboard != null;
+    }
+
     public void copyToClipboard(String value) {
         if(clipboard == null) {
             log.warn("Clipboard is not available. Value not copied.");
@@ -76,12 +80,12 @@ public class ClipboardService {
 
     private Clipboard getSystemClipboardSafely() {
         try {
-            log.warn("the state of the environment has changed to 'java.awt.headless - false'");
+//            log.warn("the state of the environment has changed to 'java.awt.headless - false'");
             //TODO Изменить запуск на -> java -Djava.awt.headless=false -jar ...
-            System.setProperty("java.awt.headless", "false"); // default headless - true, because no GUI
+            //System.setProperty("java.awt.headless", "false"); // default headless - true, because no GUI
             return Toolkit.getDefaultToolkit().getSystemClipboard();
         } catch (HeadlessException e) {
-            log.warn("Clipboard is not available.");
+            log.warn("Clipboard is not available. Reason: {}", e.getMessage());
             return null;
         }
     }

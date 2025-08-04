@@ -65,10 +65,14 @@ public class AddCommand {
             password = inputAddDTO.excludedSymbols() == null ?
                     passwordGenerator.generate() :
                     passwordGenerator.generate(inputAddDTO.excludedSymbols());
-
-            clipboardService.copyToClipboard(password);
         } else {
             password = inputAddDTO.password();
+        }
+
+        if(clipboardService.isClipboardAvailable()) {
+            clipboardService.copyToClipboard(password);
+        } else {
+            log.warn("Clipboard is not available in this environment. Use get command to show service data");
         }
 
         //TODO Вернуть

@@ -139,8 +139,11 @@ public class NoteCommands { //TODO Сделать класс для отобра
 
         if(notesByName.size() == 1) {
             DecryptedNoteDTO searched = notesByName.getFirst();
-            clipboardService.copyToClipboard(searched.password());
-            shellHelper.printInfo("Copied text will be removed after " + clearClipboardAfterSeconds + " seconds");
+            if(clipboardService.isClipboardAvailable()) {
+                clipboardService.copyToClipboard(searched.password());
+                shellHelper.printInfo("Copied text will be removed after " + clearClipboardAfterSeconds + " seconds");
+            }
+
             return searched.toString();
         }
 
@@ -166,8 +169,10 @@ public class NoteCommands { //TODO Сделать класс для отобра
             return shellHelper.getErrorMessage("Service with such login not found");
 
         DecryptedNoteDTO searched = searchedNote.get();
-        clipboardService.copyToClipboard(searched.password());
-        shellHelper.printInfo("Copied text will be removed after " + clearClipboardAfterSeconds + " seconds");
+        if(clipboardService.isClipboardAvailable()) {
+            clipboardService.copyToClipboard(searched.password());
+            shellHelper.printInfo("Copied text will be removed after " + clearClipboardAfterSeconds + " seconds");
+        }
 
         return searched.toString();
     }
