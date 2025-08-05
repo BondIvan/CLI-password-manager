@@ -14,16 +14,15 @@ import com.manager.cli_password_manager.core.entity.enums.Category;
 import com.manager.cli_password_manager.core.entity.enums.CheckingApi;
 import com.manager.cli_password_manager.core.entity.enums.ReplaceType;
 import com.manager.cli_password_manager.core.entity.enums.SortType;
-import com.manager.cli_password_manager.core.progressReporter.ProgressReporter;
-import com.manager.cli_password_manager.core.provider.ReplaceTypeValueProvider;
-import com.manager.cli_password_manager.core.service.clipboard.ClipboardService;
 import com.manager.cli_password_manager.core.provider.CategoryValueProvider;
+import com.manager.cli_password_manager.core.provider.ReplaceTypeValueProvider;
 import com.manager.cli_password_manager.core.provider.ServiceNameValueProvider;
+import com.manager.cli_password_manager.core.service.clipboard.ClipboardService;
 import com.manager.cli_password_manager.core.service.command.usecase.add.AddCommand;
 import com.manager.cli_password_manager.core.service.command.usecase.check.CheckCommand;
 import com.manager.cli_password_manager.core.service.command.usecase.delete.DeleteCommand;
-import com.manager.cli_password_manager.core.service.command.usecase.getall.GetAllCommand;
 import com.manager.cli_password_manager.core.service.command.usecase.get.GetCommand;
+import com.manager.cli_password_manager.core.service.command.usecase.getall.GetAllCommand;
 import com.manager.cli_password_manager.core.service.command.usecase.replace.ReplaceCommand;
 import org.jline.reader.LineReader;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,12 +35,9 @@ import org.springframework.shell.table.TableBuilder;
 import org.springframework.shell.table.TableModel;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -142,9 +138,10 @@ public class NoteCommands { //TODO Сделать класс для отобра
             if(clipboardService.isClipboardAvailable()) {
                 clipboardService.copyToClipboard(searched.password());
                 shellHelper.printInfo("Copied text will be removed after " + clearClipboardAfterSeconds + " seconds");
+                return searched.displayWithoutPassword();
             }
 
-            return searched.toString();
+            return searched.displayWithPassword();
         }
 
         if(login == null) {
@@ -172,9 +169,10 @@ public class NoteCommands { //TODO Сделать класс для отобра
         if(clipboardService.isClipboardAvailable()) {
             clipboardService.copyToClipboard(searched.password());
             shellHelper.printInfo("Copied text will be removed after " + clearClipboardAfterSeconds + " seconds");
+            return searched.displayWithoutPassword();
         }
 
-        return searched.toString();
+        return searched.displayWithPassword();
     }
 
     @ShellMethod(key = "get-all", value = "get all service names")

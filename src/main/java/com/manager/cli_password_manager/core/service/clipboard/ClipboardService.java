@@ -80,9 +80,6 @@ public class ClipboardService {
 
     private Clipboard getSystemClipboardSafely() {
         try {
-//            log.warn("the state of the environment has changed to 'java.awt.headless - false'");
-            //TODO Изменить запуск на -> java -Djava.awt.headless=false -jar ...
-            //System.setProperty("java.awt.headless", "false"); // default headless - true, because no GUI
             return Toolkit.getDefaultToolkit().getSystemClipboard();
         } catch (HeadlessException e) {
             log.warn("Clipboard is not available. Reason: {}", e.getMessage());

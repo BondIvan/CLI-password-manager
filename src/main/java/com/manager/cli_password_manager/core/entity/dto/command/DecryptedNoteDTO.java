@@ -8,8 +8,12 @@ public record DecryptedNoteDTO(
     String password,
     Category category
 ) {
-    @Override
-    public String toString() {
+    public String displayWithPassword() {
+        return String.format("Name: %s\nCategory: %s\nLogin: %s\nPassword: %s",
+                name, category, login, password);
+    }
+
+    public String displayWithoutPassword() {
         return String.format("Name: %s\nCategory: %s\nLogin: %s\nPassword: %s",
                 name, category, login, "*****");
     }
