@@ -2,6 +2,7 @@ package com.manager.cli_password_manager.cli_ui;
 
 import com.manager.cli_password_manager.cli_ui.output.ShellHelper;
 import com.manager.cli_password_manager.core.exception.Initialization.InitializerException;
+import com.manager.cli_password_manager.core.exception.clipboard.ClipboardException;
 import com.manager.cli_password_manager.core.exception.command.AddCommandException;
 import com.manager.cli_password_manager.core.exception.command.CheckCommandException;
 import com.manager.cli_password_manager.core.exception.command.DeleteCommandException;
@@ -9,6 +10,7 @@ import com.manager.cli_password_manager.core.exception.command.GetAllCommandExce
 import com.manager.cli_password_manager.core.exception.command.GetCommandException;
 import com.manager.cli_password_manager.core.exception.command.ReplaceCommandException;
 import com.manager.cli_password_manager.core.exception.command.ReplaceValidationException;
+import com.manager.cli_password_manager.core.exception.file.loader.FileCreatorException;
 import com.manager.cli_password_manager.core.exception.file.loader.FileLoaderException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -84,6 +86,18 @@ public class CommandExceptionHandler implements CommandExceptionResolver {
         if(ex instanceof FileLoaderException) {
             String message = shellHelper.getErrorMessage(ex.getMessage() + "\n");
             System.out.println("CommandExceptionHandler->FileLoaderException:");
+            return CommandHandlingResult.of(message, -1);
+        }
+
+        if(ex instanceof FileCreatorException) {
+            String message = shellHelper.getErrorMessage(ex.getMessage() + "\n");
+            System.out.println("CommandExceptionHandler->FileCreatorException");
+            return CommandHandlingResult.of(message, -1);
+        }
+
+        if(ex instanceof ClipboardException) {
+            String message = shellHelper.getErrorMessage(ex.getMessage() + "\n");
+            System.out.println("CommandExceptionHandler->ClipboardException");
             return CommandHandlingResult.of(message, -1);
         }
 
