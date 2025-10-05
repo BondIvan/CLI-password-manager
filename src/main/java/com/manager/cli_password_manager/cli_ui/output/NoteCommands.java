@@ -3,6 +3,7 @@ package com.manager.cli_password_manager.cli_ui.output;
 import com.manager.cli_password_manager.cli_ui.consoleProgress.ConsoleProgressReporter;
 import com.manager.cli_password_manager.core.entity.converter.StringCategoryConverter;
 import com.manager.cli_password_manager.core.entity.converter.StringCheckingApiConverter;
+import com.manager.cli_password_manager.core.entity.converter.StringExportFormatConverter;
 import com.manager.cli_password_manager.core.entity.converter.StringReplaceTypeConverter;
 import com.manager.cli_password_manager.core.entity.dto.checker.CheckerResult;
 import com.manager.cli_password_manager.core.entity.dto.command.DecryptedNoteDTO;
@@ -14,6 +15,7 @@ import com.manager.cli_password_manager.core.entity.enums.Category;
 import com.manager.cli_password_manager.core.entity.enums.CheckingApi;
 import com.manager.cli_password_manager.core.entity.enums.ReplaceType;
 import com.manager.cli_password_manager.core.entity.enums.SortType;
+import com.manager.cli_password_manager.core.export.ExportFormat;
 import com.manager.cli_password_manager.core.provider.CategoryValueProvider;
 import com.manager.cli_password_manager.core.provider.ReplaceTypeValueProvider;
 import com.manager.cli_password_manager.core.provider.ServiceNameValueProvider;
@@ -21,6 +23,7 @@ import com.manager.cli_password_manager.core.service.clipboard.ClipboardService;
 import com.manager.cli_password_manager.core.service.command.usecase.add.AddCommand;
 import com.manager.cli_password_manager.core.service.command.usecase.check.CheckCommand;
 import com.manager.cli_password_manager.core.service.command.usecase.delete.DeleteCommand;
+import com.manager.cli_password_manager.core.service.command.usecase.export.ExportCommand;
 import com.manager.cli_password_manager.core.service.command.usecase.get.GetCommand;
 import com.manager.cli_password_manager.core.service.command.usecase.getall.GetAllCommand;
 import com.manager.cli_password_manager.core.service.command.usecase.replace.ReplaceCommand;
@@ -51,6 +54,9 @@ public class NoteCommands { //TODO Сделать класс для отобра
     private final StringCheckingApiConverter stringCheckingApiConverter;
     private final CheckCommand checkCommand;
     private final ConsoleProgressReporter consoleProgressReporter;
+    private final ExportCommand exportCommand;
+    private final StringExportFormatConverter stringExportFormatConverter;
+
     @Value("${shell.clearClipboardAfterSeconds}")
     private long clearClipboardAfterSeconds;
 
@@ -63,18 +69,20 @@ public class NoteCommands { //TODO Сделать класс для отобра
     private final GetCommand getCommand;
 
     public NoteCommands(
-                         @Lazy LineReader lineReader,
-                         AddCommand addCommand,
-                         GetAllCommand getAllCommand,
-                         ShellHelper shellHelper,
-                         GetCommand getCommand,
-                         ClipboardService clipboardService,
-                         StringCategoryConverter stringCategoryConverter,
-                         DeleteCommand deleteCommand,
-                         StringReplaceTypeConverter stringReplaceTypeConverter,
-                         ReplaceCommand replaceCommand,
-                         StringCheckingApiConverter stringCheckingApiConverter,
-                         CheckCommand checkCommand, ConsoleProgressReporter consoleProgressReporter) {
+            @Lazy LineReader lineReader,
+            AddCommand addCommand,
+            GetAllCommand getAllCommand,
+            ShellHelper shellHelper,
+            GetCommand getCommand,
+            ClipboardService clipboardService,
+            StringCategoryConverter stringCategoryConverter,
+            DeleteCommand deleteCommand,
+            StringReplaceTypeConverter stringReplaceTypeConverter,
+            ReplaceCommand replaceCommand,
+            StringCheckingApiConverter stringCheckingApiConverter,
+            CheckCommand checkCommand,
+            ConsoleProgressReporter consoleProgressReporter,
+            ExportCommand exportCommand, StringExportFormatConverter stringExportFormatConverter) {
         this.lineReader = lineReader;
         this.shellHelper = shellHelper;
         this.clipboardService = clipboardService;
@@ -88,6 +96,8 @@ public class NoteCommands { //TODO Сделать класс для отобра
         this.stringCheckingApiConverter = stringCheckingApiConverter;
         this.checkCommand = checkCommand;
         this.consoleProgressReporter = consoleProgressReporter;
+        this.exportCommand = exportCommand;
+        this.stringExportFormatConverter = stringExportFormatConverter;
     }
 
     @ShellMethod(key = "add", value = "add a new service")
@@ -287,6 +297,22 @@ public class NoteCommands { //TODO Сделать класс для отобра
         TableBuilder tableBuilder = new TableBuilder(model);
 
         shellHelper.print(tableBuilder.build().render(200));
+    }
+
+    @ShellMethod(key = "export", value = "Export all services to a file")
+    public String export(
+            @ShellOption(arity = 1, value = {"--format", "-f"}) String format,
+            @ShellOption(arity = 1, value = {"--protect", "-p"}, help = "Protect by password", defaultValue = "false") boolean isProtect
+    ) {
+        String passwordProtection = null;
+        if(isProtect)
+            passwordProtection = lineReader.readLine("Set the password protection - ", '*');
+
+        ExportFormat exportFormat = stringExportFormatConverter.toExportFormat(format);
+
+        exportCommand.execute(exportFormat, passwordProtection);
+
+        return "Success";
     }
 
     private List<String[]> preparedDataForTable(Map<String, List<NoteNamePlusLoginDTO>> data,

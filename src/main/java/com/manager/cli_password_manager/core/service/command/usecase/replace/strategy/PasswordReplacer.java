@@ -2,6 +2,7 @@ package com.manager.cli_password_manager.core.service.command.usecase.replace.st
 
 import com.manager.cli_password_manager.core.entity.Note;
 import com.manager.cli_password_manager.core.entity.dto.encoder.EncryptionResult;
+import com.manager.cli_password_manager.core.entity.dto.encoder.EncryptionResultWithKey;
 import com.manager.cli_password_manager.core.entity.dto.replacer.ReplacementResult;
 import com.manager.cli_password_manager.core.entity.enums.ReplaceType;
 import com.manager.cli_password_manager.core.service.command.usecase.replace.Replacement;
@@ -32,7 +33,7 @@ public class PasswordReplacer implements Replacement {
         //TODO Проверить новый пароль через сервис HIBP
         //TODO Не забыть обновить данные кэша для hibp
 
-        EncryptionResult encryptedNewPassword = aesGcm.encryptPassword(newPassword);
+        EncryptionResultWithKey encryptedNewPassword = aesGcm.encryptPassword(newPassword);
 
         return new ReplacementResult(
                 replacingNote.withPassword(encryptedNewPassword.encryptedPassword()),

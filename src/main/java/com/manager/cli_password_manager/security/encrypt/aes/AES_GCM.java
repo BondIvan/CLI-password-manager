@@ -1,6 +1,8 @@
 package com.manager.cli_password_manager.security.encrypt.aes;
 
 import com.manager.cli_password_manager.core.entity.dto.encoder.EncryptionResult;
+import com.manager.cli_password_manager.core.entity.dto.encoder.EncryptionResultWithKey;
+import com.manager.cli_password_manager.core.entity.dto.export.AESExportParameters;
 import com.manager.cli_password_manager.core.exception.security.EncryptionException;
 import com.manager.cli_password_manager.security.EncryptionUtils;
 import com.manager.cli_password_manager.security.encrypt.Encrypting;
@@ -21,6 +23,8 @@ import java.util.Base64;
 
 @Component
 public class AES_GCM implements Encrypting {
+    private static final String KEY_ALGORITHM = "PBKDF2WithHmacSHA256";
+    private static final int KEY_ITERATIONS = 65536;
     private static final int AES_KEY_SIZE = 256;
     private static final int GCM_TAG_LENGTH = 128;
     private static final int SALT_LENGTH = 16;
@@ -33,17 +37,39 @@ public class AES_GCM implements Encrypting {
     }
 
     @Override
-    public EncryptionResult encryptPassword(String data) {
-        byte[] salt = generateSalt();
-        byte[] iv = generateIV();
-        SecretKey key = generateKey(data.toCharArray(), salt);
+    public AESExportParameters encryptData(String data, char[] password) {
+        EncryptionResult result = encrypt(data, password);
+
+        AESExportParameters params = new AESExportParameters("AES-GCM-256", result.base64EncryptedResult());
+        params.setKdf("PBKDF2");
+        params.setSalt(Base64.getEncoder().encodeToString(result.salt()));
+        params.setIv(Base64.getEncoder().encodeToString(result.iv()));
+        params.setIterations(KEY_ITERATIONS);
+
+        return params;
+    }
+
+    @Override
+    public EncryptionResultWithKey encryptPassword(String data) { //TODO Заменить на один метод с перегрузками
+        EncryptionResult result = encrypt(data, data.toCharArray());
+        return new EncryptionResultWithKey(
+                result.base64EncryptedResult(),
+                result.key()
+        );
+    }
+
+    private EncryptionResult encrypt(String data, char[] password) {
+        final byte[] salt = generateSalt();
+        final byte[] iv = generateIV();
+        SecretKey key = generateKey(password, salt);
 
         byte[] concatenatedIvAndEncrypted = doFinal(data, iv, key);
         String base64View = Base64.getEncoder().encodeToString(concatenatedIvAndEncrypted);
+        EncryptionResult result = new EncryptionResult(base64View, key, salt, iv);
 
-        EncryptionUtils.clearData(salt, iv, concatenatedIvAndEncrypted);
+//        EncryptionUtils.clearData(salt, iv, concatenatedIvAndEncrypted); //TODO Нужно подумать
 
-        return new EncryptionResult(base64View, key);
+        return result;
     }
 
     @Override
@@ -110,8 +136,8 @@ public class AES_GCM implements Encrypting {
     private SecretKey generateKey(char[] password, byte[] salt) {
         SecretKey tmp;
         try {
-            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-            KeySpec spec = new PBEKeySpec(password, salt, 65536, AES_KEY_SIZE);
+            SecretKeyFactory factory = SecretKeyFactory.getInstance(KEY_ALGORITHM);
+            KeySpec spec = new PBEKeySpec(password, salt, KEY_ITERATIONS, AES_KEY_SIZE);
             tmp = factory.generateSecret(spec);
             Arrays.fill(password,'\0');
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {

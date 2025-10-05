@@ -3,6 +3,7 @@ package com.manager.cli_password_manager.core.service.command.usecase.add;
 import com.manager.cli_password_manager.core.entity.Note;
 import com.manager.cli_password_manager.core.entity.dto.command.InputAddDTO;
 import com.manager.cli_password_manager.core.entity.dto.encoder.EncryptionResult;
+import com.manager.cli_password_manager.core.entity.dto.encoder.EncryptionResultWithKey;
 import com.manager.cli_password_manager.core.exception.command.AddCommandException;
 import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
 import com.manager.cli_password_manager.core.repository.InMemoryVaultRepository;
@@ -79,7 +80,7 @@ public class AddCommand {
 //        if(!inputAddDTO.isAutoGeneratePassword() && !passwordValidation.isValid(password))
 //            throw new AddCommandException("Пароль не соответствует требованиям: " + passwordValidation.getReason());
 
-        EncryptionResult encryptedResult = aesGcm.encryptPassword(password);
+        EncryptionResultWithKey encryptedResult = aesGcm.encryptPassword(password);
 
         Note newNote = new Note();
         newNote.setName(inputAddDTO.serviceName());
