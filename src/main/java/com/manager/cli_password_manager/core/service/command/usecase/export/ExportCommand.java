@@ -1,13 +1,9 @@
 package com.manager.cli_password_manager.core.service.command.usecase.export;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.manager.cli_password_manager.core.entity.Note;
-import com.manager.cli_password_manager.core.entity.dto.export.AbstractExportParameters;
-import com.manager.cli_password_manager.core.exception.command.ExportCommandException;
 import com.manager.cli_password_manager.core.export.ExportFormat;
 import com.manager.cli_password_manager.core.export.ExporterFactory;
-import com.manager.cli_password_manager.core.export.NoteExporter;
 import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
 import com.manager.cli_password_manager.core.repository.InMemoryVaultRepository;
 import com.manager.cli_password_manager.core.service.file.creator.SecureFileCreator;
@@ -20,12 +16,11 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -68,19 +63,12 @@ public class ExportCommand {
     }
 
     public void execute(ExportFormat format, String passwordProtection) {
-        NoteExporter noteExporter = exporterFactory.getExporter(format)
-                .orElseThrow(() -> new ExportCommandException("Exporter for this format not found"));
+//        CipherInputStream cis = new CipherInputStream()
 
-        try {
-            fileCreator.createAndSecure(exportFilePath);
-
-            if (passwordProtection != null)
-                withProtection(noteExporter, passwordProtection.toCharArray());
-            else
-                withoutProtection();
-        } catch (Exception e) {
-            throw new RuntimeException("Some export exception: " + e.getMessage());
-        }
+        Stream<Note> noteStream = notesRepository.getAllNotes().values().stream()
+                .flatMap(List::stream)
+                .peek(note -> note.setPassword(encrypting.decryptPassword(vaultRepository.getKey(note.getId()), note.getPassword())));
+//                .map(note -> note.withPassword(encrypting.decryptPassword(vaultRepository.getKey(note.getId()), note.getPassword())));
     }
 
     //{
@@ -114,17 +102,5 @@ public class ExportCommand {
                 ));
 
         return deepCopyNotes;
-    }
-
-    private void withProtection(NoteExporter noteExporter, char[] password) throws Exception {
-        String exportData = noteExporter.export(decryptAllNotes());
-        AbstractExportParameters abstractExportParameters = encrypting.encryptData(exportData, password);
-
-        objectMapper.writeValue(exportFilePath.toFile(), abstractExportParameters);
-    }
-
-    private void withoutProtection() throws Exception {
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        objectMapper.writeValue(exportFilePath.toFile(), decryptAllNotes());
     }
 }

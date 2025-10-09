@@ -2,7 +2,6 @@ package com.manager.cli_password_manager.security.encrypt.aes;
 
 import com.manager.cli_password_manager.core.entity.dto.encoder.EncryptionResult;
 import com.manager.cli_password_manager.core.entity.dto.encoder.EncryptionResultWithKey;
-import com.manager.cli_password_manager.core.entity.dto.export.AESExportParameters;
 import com.manager.cli_password_manager.core.exception.security.EncryptionException;
 import com.manager.cli_password_manager.security.EncryptionUtils;
 import com.manager.cli_password_manager.security.encrypt.Encrypting;
@@ -34,19 +33,6 @@ public class AES_GCM implements Encrypting {
 
     public AES_GCM(SecureRandom secureRandom) {
         this.secureRandom = secureRandom;
-    }
-
-    @Override
-    public AESExportParameters encryptData(String data, char[] password) {
-        EncryptionResult result = encrypt(data, password);
-
-        AESExportParameters params = new AESExportParameters("AES-GCM-256", result.base64EncryptedResult());
-        params.setKdf("PBKDF2");
-        params.setSalt(Base64.getEncoder().encodeToString(result.salt()));
-        params.setIv(Base64.getEncoder().encodeToString(result.iv()));
-        params.setIterations(KEY_ITERATIONS);
-
-        return params;
     }
 
     @Override
