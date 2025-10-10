@@ -2,7 +2,6 @@ package com.manager.cli_password_manager.core.service.command.usecase.add;
 
 import com.manager.cli_password_manager.core.entity.Note;
 import com.manager.cli_password_manager.core.entity.dto.command.InputAddDTO;
-import com.manager.cli_password_manager.core.entity.dto.encoder.EncryptionResult;
 import com.manager.cli_password_manager.core.exception.command.AddCommandException;
 import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
 import com.manager.cli_password_manager.core.repository.InMemoryVaultRepository;
@@ -11,8 +10,9 @@ import com.manager.cli_password_manager.core.service.file.saver.StorageManager;
 import com.manager.cli_password_manager.core.service.password.PasswordGenerator;
 import com.manager.cli_password_manager.core.service.password.PasswordValidation;
 import com.manager.cli_password_manager.core.service.vault.impl.VaultStateService;
-import com.manager.cli_password_manager.security.encrypt.aes.AES_GCM;
+import com.manager.cli_password_manager.security.encrypt.PasswordEncryptor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,29 +23,30 @@ import java.util.Optional;
 public class AddCommand {
     private final InMemoryNotesRepository notesRepository;
     private final InMemoryVaultRepository vaultRepository;
+    @Qualifier("aesPasswordEncryptor")
+    private final PasswordEncryptor passwordEncryptor;
     private final PasswordValidation passwordValidation;
     private final PasswordGenerator passwordGenerator;
-    private final AES_GCM aesGcm;
     private final ClipboardService clipboardService;
     private final StorageManager storageManager;
     private final VaultStateService vaultStateService;
 
     public AddCommand(
             InMemoryNotesRepository notesRepository,
+            InMemoryVaultRepository vaultRepository,
             PasswordValidation validation,
             PasswordGenerator generator,
-            AES_GCM aesGcm,
+            PasswordEncryptor passwordEncryptor,
             ClipboardService clipboardService,
             StorageManager storageManager,
-            InMemoryVaultRepository vaultRepository,
             VaultStateService vaultStateService) {
         this.notesRepository = notesRepository;
+        this.vaultRepository = vaultRepository;
         this.passwordValidation = validation;
         this.passwordGenerator = generator;
-        this.aesGcm = aesGcm;
+        this.passwordEncryptor = passwordEncryptor;
         this.clipboardService = clipboardService;
         this.storageManager = storageManager;
-        this.vaultRepository = vaultRepository;
         this.vaultStateService = vaultStateService;
     }
 
@@ -78,19 +79,15 @@ public class AddCommand {
         //TODO Вернуть
 //        if(!inputAddDTO.isAutoGeneratePassword() && !passwordValidation.isValid(password))
 //            throw new AddCommandException("Пароль не соответствует требованиям: " + passwordValidation.getReason());
-
-        EncryptionResult encryptedResult = aesGcm.encryptPassword(password);
-
-        Note newNote = new Note();
-        newNote.setName(inputAddDTO.serviceName());
-        newNote.setLogin(inputAddDTO.login());
-        newNote.setPassword(encryptedResult.encryptedPassword());
-        newNote.setCategory(inputAddDTO.category());
-
+        
         try {
-            vaultRepository.addKey(newNote.getId(), encryptedResult.key());
+            Note newNote = new Note();
+            newNote.setName(inputAddDTO.serviceName());
+            newNote.setLogin(inputAddDTO.login());
+            newNote.setPassword(passwordEncryptor.encryptPassword(newNote.getId(), password));
+            newNote.setCategory(inputAddDTO.category());
+            
             notesRepository.addNote(newNote);
-
             storageManager.transactionalFilesSave(); // commit
 
             return true;

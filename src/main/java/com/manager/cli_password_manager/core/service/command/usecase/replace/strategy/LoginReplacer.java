@@ -1,7 +1,6 @@
 package com.manager.cli_password_manager.core.service.command.usecase.replace.strategy;
 
 import com.manager.cli_password_manager.core.entity.Note;
-import com.manager.cli_password_manager.core.entity.dto.replacer.ReplacementResult;
 import com.manager.cli_password_manager.core.entity.enums.ReplaceType;
 import com.manager.cli_password_manager.core.exception.command.ReplaceValidationException;
 import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
@@ -20,7 +19,7 @@ public class LoginReplacer implements Replacement {
     }
 
     @Override
-    public ReplacementResult replace(Note replacingNote, String newLogin) {
+    public Note replace(Note replacingNote, String newLogin) {
         Optional<List<Note>> optionalNotes = notesRepository.findNotesByServiceName(replacingNote.getName());
 
         if(optionalNotes.isEmpty())
@@ -34,10 +33,7 @@ public class LoginReplacer implements Replacement {
         if(loginAlreadyExist)
             throw new ReplaceValidationException("This service already has an account with this login");
 
-        return new ReplacementResult(
-                replacingNote.withLogin(newLogin),
-                Optional.empty()
-        );
+        return replacingNote.withLogin(newLogin);
     }
 
     @Override
