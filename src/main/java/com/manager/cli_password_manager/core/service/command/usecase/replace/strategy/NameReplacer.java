@@ -1,7 +1,6 @@
 package com.manager.cli_password_manager.core.service.command.usecase.replace.strategy;
 
 import com.manager.cli_password_manager.core.entity.Note;
-import com.manager.cli_password_manager.core.entity.dto.replacer.ReplacementResult;
 import com.manager.cli_password_manager.core.entity.enums.ReplaceType;
 import com.manager.cli_password_manager.core.exception.command.ReplaceValidationException;
 import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
@@ -20,22 +19,14 @@ public class NameReplacer implements Replacement {
     }
 
     @Override
-    public ReplacementResult replace(Note replacingNote, String newName) {
-        if(replacingNote.getName().equalsIgnoreCase(newName)) {
-            return new ReplacementResult(
-                    replacingNote.withName(newName),
-                    Optional.empty()
-            );
-        }
+    public Note replace(Note replacingNote, String newName) {
+        if(replacingNote.getName().equalsIgnoreCase(newName))
+            return replacingNote.withName(newName);
 
         Optional<List<Note>> optionalNotesForNewName = notesRepository.findNotesByServiceName(newName);
 
-        if(optionalNotesForNewName.isEmpty()) {
-            return new ReplacementResult(
-                    replacingNote.withName(newName),
-                    Optional.empty()
-            );
-        }
+        if(optionalNotesForNewName.isEmpty())
+            return replacingNote.withName(newName);
 
         List<Note> matchesName = optionalNotesForNewName.get();
 
@@ -45,10 +36,7 @@ public class NameReplacer implements Replacement {
         if(hasMatchingNameServicesTheSameLogin)
             throw new ReplaceValidationException("This service already has an account with this login");
 
-        return new ReplacementResult(
-                replacingNote.withName(newName),
-                Optional.empty()
-        );
+        return replacingNote.withName(newName);
     }
 
     @Override

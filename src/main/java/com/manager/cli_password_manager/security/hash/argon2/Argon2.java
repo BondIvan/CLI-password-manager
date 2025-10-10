@@ -7,10 +7,7 @@ import org.bouncycastle.crypto.generators.Argon2BytesGenerator;
 import org.bouncycastle.crypto.params.Argon2Parameters;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
-
-@Component
+@Component("argon2")
 public class Argon2 implements Hashing {
     private static final int ITERATIONS = 2; //TODO Позже увеличить до 15
     private static final int MEM_LIMIT = 65536;
@@ -18,42 +15,35 @@ public class Argon2 implements Hashing {
     private static final int HASH_LENGTH = 32;
     public static final int SALT_LENGTH = 16;
 
-    private final SecureRandom secureRandom;
-
-    public Argon2(SecureRandom secureRandom) {
-        this.secureRandom = secureRandom;
+    @Override
+    public byte[] hashWithSalt(String data, byte[] salt) {
+        return hashWithSalt(data.getBytes(), salt);
     }
 
     @Override
-    public byte[] hashWithSalt(String data, byte[] salt) {
+    public byte[] hashWithSalt(byte[] data, byte[] salt) {
         if(salt == null || salt.length != SALT_LENGTH)
             throw new HashingEncryption("Wrong salt parameter");
 
-        Argon2Parameters parameters = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
+        Argon2BytesGenerator generator = new Argon2BytesGenerator();
+        generator.init(createParameters(salt));
+
+        byte[] outBytes = new byte[HASH_LENGTH];
+
+        generator.generateBytes(data, outBytes, 0, outBytes.length);
+
+        EncryptionUtils.clearData(data);
+
+        return outBytes;
+    }
+
+    private Argon2Parameters createParameters(byte[] salt) {
+        return new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
                 .withVersion(Argon2Parameters.ARGON2_VERSION_13)
                 .withIterations(ITERATIONS)
                 .withMemoryAsKB(MEM_LIMIT)
                 .withParallelism(PARALLELISM)
                 .withSalt(salt)
                 .build();
-
-        Argon2BytesGenerator generator = new Argon2BytesGenerator();
-        generator.init(parameters);
-
-        byte[] outBytes = new byte[HASH_LENGTH];
-        byte[] dataBytes = data.getBytes(StandardCharsets.UTF_8);
-
-        generator.generateBytes(dataBytes, outBytes, 0, outBytes.length);
-
-        EncryptionUtils.clearData(dataBytes);
-
-        return outBytes;
-    }
-
-    @Override
-    public byte[] generateSalt() {
-        byte[] salt = new byte[SALT_LENGTH];
-        secureRandom.nextBytes(salt);
-        return salt;
     }
 }

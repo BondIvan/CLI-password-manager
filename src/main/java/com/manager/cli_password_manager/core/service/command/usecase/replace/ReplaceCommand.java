@@ -2,7 +2,6 @@ package com.manager.cli_password_manager.core.service.command.usecase.replace;
 
 import com.manager.cli_password_manager.core.entity.Note;
 import com.manager.cli_password_manager.core.entity.dto.command.InputReplaceDTO;
-import com.manager.cli_password_manager.core.entity.dto.replacer.ReplacementResult;
 import com.manager.cli_password_manager.core.entity.enums.ReplaceType;
 import com.manager.cli_password_manager.core.exception.command.ReplaceCommandException;
 import com.manager.cli_password_manager.core.exception.command.ReplaceValidationException;
@@ -66,13 +65,8 @@ public class ReplaceCommand {
             throw new ReplaceCommandException("replacement for this type [" + inputReplaceDTO.type().getTitle() + "] note found");
 
         try {
-            ReplacementResult replaced = replacement.replace(replacingNote, inputReplaceDTO.value());
-
-            notesRepository.updateNote(replacingNote, replaced.newNote());
-
-            String newID = replaced.newNote().getId();
-            if(replaced.key().isPresent())
-                vaultRepository.updateKey(newID, replaced.key().get());
+            Note replaced = replacement.replace(replacingNote, inputReplaceDTO.value());
+            notesRepository.updateNote(replacingNote, replaced);
 
             storageManager.transactionalFilesSave();
 

@@ -2,13 +2,10 @@ package com.manager.cli_password_manager.core.service.command.usecase.replace.st
 
 import com.manager.cli_password_manager.core.entity.Note;
 import com.manager.cli_password_manager.core.entity.converter.StringCategoryConverter;
-import com.manager.cli_password_manager.core.entity.dto.replacer.ReplacementResult;
 import com.manager.cli_password_manager.core.entity.enums.Category;
 import com.manager.cli_password_manager.core.entity.enums.ReplaceType;
 import com.manager.cli_password_manager.core.service.command.usecase.replace.Replacement;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Component
 public class CategoryReplacer implements Replacement {
@@ -19,12 +16,9 @@ public class CategoryReplacer implements Replacement {
     }
 
     @Override
-    public ReplacementResult replace(Note replacingNote, String newCategory) {
+    public Note replace(Note replacingNote, String newCategory) {
         Category category = categoryConverter.toCategory(newCategory);
-        return new ReplacementResult(
-                replacingNote.withCategory(category),
-                Optional.empty()
-        );
+        return replacingNote.withCategory(category);
     }
 
     @Override

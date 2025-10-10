@@ -4,4 +4,8 @@ public class MasterPasswordException extends RuntimeException {
     public MasterPasswordException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public MasterPasswordException(Throwable cause) {
+        super(cause);
+    }
 }
