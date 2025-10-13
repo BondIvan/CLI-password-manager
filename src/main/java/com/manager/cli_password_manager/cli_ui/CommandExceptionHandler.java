@@ -6,6 +6,7 @@ import com.manager.cli_password_manager.core.exception.clipboard.ClipboardExcept
 import com.manager.cli_password_manager.core.exception.command.AddCommandException;
 import com.manager.cli_password_manager.core.exception.command.CheckCommandException;
 import com.manager.cli_password_manager.core.exception.command.DeleteCommandException;
+import com.manager.cli_password_manager.core.exception.command.ExportCommandException;
 import com.manager.cli_password_manager.core.exception.command.GetAllCommandException;
 import com.manager.cli_password_manager.core.exception.command.GetCommandException;
 import com.manager.cli_password_manager.core.exception.command.ReplaceCommandException;
@@ -99,6 +100,12 @@ public class CommandExceptionHandler implements CommandExceptionResolver {
             String message = shellHelper.getErrorMessage(ex.getMessage() + "\n");
             System.out.println("CommandExceptionHandler->ClipboardException");
             return CommandHandlingResult.of(message, -1);
+        }
+
+        if(ex instanceof ExportCommandException) {
+            String message = shellHelper.getErrorMessage(ex.getMessage() + "\n");
+            System.out.println("CommandExceptionHandler->ExportCommandException");
+            return CommandHandlingResult.of(message);
         }
 
         //TODO Добавить остальные исключения

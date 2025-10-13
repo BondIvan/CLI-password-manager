@@ -3,6 +3,7 @@ package com.manager.cli_password_manager.core.entity.mapper;
 import com.manager.cli_password_manager.core.entity.Note;
 import com.manager.cli_password_manager.core.entity.dto.command.DecryptedNoteDTO;
 import com.manager.cli_password_manager.core.entity.dto.command.NoteNamePlusLoginDTO;
+import com.manager.cli_password_manager.core.entity.dto.export.NoteExportDTO;
 import com.manager.cli_password_manager.security.encrypt.aes.AesPasswordEncryptor;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +28,15 @@ public class NoteMapper {
         return new NoteNamePlusLoginDTO(
                 note.getName(),
                 note.getLogin()
+        );
+    }
+
+    public NoteExportDTO toExportDTO(Note note) {
+        return new NoteExportDTO(
+                note.getName(),
+                note.getLogin(),
+                note.getCategory().name(),
+                aesPasswordEncryptor.decryptPassword(note.getId(), note.getPassword())
         );
     }
 }

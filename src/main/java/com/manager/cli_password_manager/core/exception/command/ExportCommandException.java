@@ -4,4 +4,8 @@ public class ExportCommandException extends RuntimeException {
     public ExportCommandException(String message) {
         super(message);
     }
+
+    public ExportCommandException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
