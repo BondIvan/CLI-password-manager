@@ -1,5 +1,7 @@
 package com.manager.cli_password_manager.core.export.strategies;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.manager.cli_password_manager.core.entity.Note;
 import com.manager.cli_password_manager.core.entity.dto.export.EncryptedExportContainer;
@@ -17,7 +19,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Component
 public class JsonNoteExporter implements NoteExporter {
@@ -35,17 +36,18 @@ public class JsonNoteExporter implements NoteExporter {
 
     @Override
     public void export(ExportContext context, OutputStream outputStream) throws IOException {
-        Map<String, List<NoteExportDTO>> exportedData = prepareData(context.notes());
+        Map<String, List<Note>> exportedData = context.notes();
         if(context.password() != null)
             encryptedExport(exportedData, context.password(), outputStream);
         else
             plainExport(exportedData, outputStream);
     }
 
-    private void encryptedExport(Map<String, List<NoteExportDTO>> data, char[] password, OutputStream outputStream) throws IOException {
+    private void encryptedExport(Map<String, List<Note>> data, char[] password, OutputStream outputStream) throws IOException {
         byte[] plainTextBytes;
+
         try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            objectMapper.writeValue(baos, data);
+            plainExport(data, baos);
             plainTextBytes = baos.toByteArray();
         }
 
@@ -56,18 +58,25 @@ public class JsonNoteExporter implements NoteExporter {
         objectMapper.writerWithDefaultPrettyPrinter().writeValue(outputStream, exportContainer);
     }
 
-    private void plainExport(Map<String, List<NoteExportDTO>> data, OutputStream outputStream) throws IOException {
-        objectMapper.writerWithDefaultPrettyPrinter().writeValue(outputStream, data);
-    }
+    private void plainExport(Map<String, List<Note>> data, OutputStream outputStream) throws IOException {
+        try(JsonGenerator generator = objectMapper.getFactory().createGenerator(outputStream)) {
+            generator.setPrettyPrinter(new DefaultPrettyPrinter());
+            generator.writeStartObject();
 
-    private Map<String, List<NoteExportDTO>> prepareData(Map<String, List<Note>> notes) {
-        return notes.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> entry.getValue().stream()
-                                .map(noteMapper::toExportDTO)
-                                .toList()
-                ));
+            for(Map.Entry<String, List<Note>> entry: data.entrySet()) {
+                generator.writeFieldName(entry.getKey());
+                generator.writeStartArray();
+
+                for(Note note: entry.getValue()) {
+                    NoteExportDTO noteExportDTO = noteMapper.toExportDTO(note);
+                    generator.writeObject(noteExportDTO);
+                }
+
+                generator.writeEndArray();
+            }
+
+            generator.writeEndObject();
+        }
     }
 
     @Override
