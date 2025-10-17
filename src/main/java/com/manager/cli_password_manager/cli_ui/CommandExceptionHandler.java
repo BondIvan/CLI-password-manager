@@ -1,6 +1,7 @@
 package com.manager.cli_password_manager.cli_ui;
 
 import com.manager.cli_password_manager.cli_ui.output.ShellHelper;
+import com.manager.cli_password_manager.core.exception.IO.IngestionCommandException;
 import com.manager.cli_password_manager.core.exception.Initialization.InitializerException;
 import com.manager.cli_password_manager.core.exception.clipboard.ClipboardException;
 import com.manager.cli_password_manager.core.exception.command.AddCommandException;
@@ -105,6 +106,12 @@ public class CommandExceptionHandler implements CommandExceptionResolver {
         if(ex instanceof ExportCommandException) {
             String message = shellHelper.getErrorMessage(ex.getMessage() + "\n");
             System.out.println("CommandExceptionHandler->ExportCommandException");
+            return CommandHandlingResult.of(message);
+        }
+
+        if(ex instanceof IngestionCommandException) {
+            String message = shellHelper.getErrorMessage(ex.getMessage() + "\n");
+            System.out.println("CommandExceptionHandler->IngestionCommandException");
             return CommandHandlingResult.of(message);
         }
 

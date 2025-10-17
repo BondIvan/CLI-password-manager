@@ -38,6 +38,10 @@ public class InMemoryNotesRepository implements NoteRepository {
         notes.computeIfAbsent(newNote.getName().toLowerCase(), k -> new ArrayList<>()).add(newNote);
     }
 
+    public void addAll(Map<String, List<Note>> m) {
+        notes.putAll(m);
+    }
+
     @Override
     public Optional<List<Note>> findNotesByServiceName(String serviceName) {
         List<Note> searchedNotes = notes.get(serviceName.toLowerCase());

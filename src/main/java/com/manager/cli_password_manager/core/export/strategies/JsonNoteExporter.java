@@ -6,12 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.manager.cli_password_manager.core.entity.Note;
 import com.manager.cli_password_manager.core.entity.dto.export.EncryptedExportContainer;
 import com.manager.cli_password_manager.core.entity.dto.export.NoteExportDTO;
-import com.manager.cli_password_manager.core.entity.enums.ExportEncryptorAlgorithm;
+import com.manager.cli_password_manager.core.entity.enums.IOEncryptorAlgorithm;
 import com.manager.cli_password_manager.core.entity.mapper.NoteMapper;
 import com.manager.cli_password_manager.core.export.ExportContext;
 import com.manager.cli_password_manager.core.export.ExportFormat;
 import com.manager.cli_password_manager.core.export.NoteExporter;
-import com.manager.cli_password_manager.core.service.export.ExportEncryptionService;
+import com.manager.cli_password_manager.core.service.export.IOEncryptionService;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
@@ -23,14 +23,14 @@ import java.util.Map;
 @Component
 public class JsonNoteExporter implements NoteExporter {
     private final ObjectMapper objectMapper;
-    private final ExportEncryptionService exportEncryptorService;
+    private final IOEncryptionService ioEncryptorService;
     private final NoteMapper noteMapper;
 
     public JsonNoteExporter(ObjectMapper objectMapper,
-                            ExportEncryptionService exportEncryptorService,
+                            IOEncryptionService ioEncryptorService,
                             NoteMapper noteMapper) {
         this.objectMapper = objectMapper.copy();
-        this.exportEncryptorService = exportEncryptorService;
+        this.ioEncryptorService = ioEncryptorService;
         this.noteMapper = noteMapper;
     }
 
@@ -52,8 +52,8 @@ public class JsonNoteExporter implements NoteExporter {
         }
 
         //TODO ExportEncryptorAlgorithm нужно заменить на какую-то абстракцию (в будущем конфиг файл)
-        EncryptedExportContainer exportContainer = exportEncryptorService
-                .exportData(plainTextBytes, ExportEncryptorAlgorithm.AES_GCM_256, password);
+        EncryptedExportContainer exportContainer = ioEncryptorService
+                .exportData(plainTextBytes, IOEncryptorAlgorithm.AES_GCM_256, password);
 
         objectMapper.writerWithDefaultPrettyPrinter().writeValue(outputStream, exportContainer);
     }

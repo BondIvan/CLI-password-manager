@@ -15,6 +15,8 @@ import com.manager.cli_password_manager.core.entity.enums.Category;
 import com.manager.cli_password_manager.core.entity.enums.CheckingApi;
 import com.manager.cli_password_manager.core.entity.enums.ReplaceType;
 import com.manager.cli_password_manager.core.entity.enums.SortType;
+import com.manager.cli_password_manager.core.exception.IO.IngestionCommandException;
+import com.manager.cli_password_manager.core.exception.IO.IngestionFileProtectedException;
 import com.manager.cli_password_manager.core.export.ExportFormat;
 import com.manager.cli_password_manager.core.provider.CategoryValueProvider;
 import com.manager.cli_password_manager.core.provider.ReplaceTypeValueProvider;
@@ -26,10 +28,12 @@ import com.manager.cli_password_manager.core.service.command.usecase.delete.Dele
 import com.manager.cli_password_manager.core.service.command.usecase.export.ExportCommand;
 import com.manager.cli_password_manager.core.service.command.usecase.get.GetCommand;
 import com.manager.cli_password_manager.core.service.command.usecase.getall.GetAllCommand;
+import com.manager.cli_password_manager.core.service.command.usecase.ingestion.IngestionCommand;
 import com.manager.cli_password_manager.core.service.command.usecase.replace.ReplaceCommand;
 import org.jline.reader.LineReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.shell.Shell;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -56,6 +60,7 @@ public class NoteCommands { //TODO Сделать класс для отобра
     private final ConsoleProgressReporter consoleProgressReporter;
     private final ExportCommand exportCommand;
     private final StringExportFormatConverter stringExportFormatConverter;
+    private final IngestionCommand ingestionCommand;
 
     @Value("${shell.clearClipboardAfterSeconds}")
     private long clearClipboardAfterSeconds;
@@ -82,7 +87,9 @@ public class NoteCommands { //TODO Сделать класс для отобра
             StringCheckingApiConverter stringCheckingApiConverter,
             CheckCommand checkCommand,
             ConsoleProgressReporter consoleProgressReporter,
-            ExportCommand exportCommand, StringExportFormatConverter stringExportFormatConverter) {
+            ExportCommand exportCommand,
+            StringExportFormatConverter stringExportFormatConverter,
+            IngestionCommand ingestionCommand) {
         this.lineReader = lineReader;
         this.shellHelper = shellHelper;
         this.clipboardService = clipboardService;
@@ -98,6 +105,7 @@ public class NoteCommands { //TODO Сделать класс для отобра
         this.consoleProgressReporter = consoleProgressReporter;
         this.exportCommand = exportCommand;
         this.stringExportFormatConverter = stringExportFormatConverter;
+        this.ingestionCommand = ingestionCommand;
     }
 
     @ShellMethod(key = "add", value = "add a new service")
@@ -311,6 +319,28 @@ public class NoteCommands { //TODO Сделать класс для отобра
         ExportFormat exportFormat = stringExportFormatConverter.toExportFormat(format);
 
         exportCommand.execute(exportFormat, passwordProtection);
+
+        return "Success";
+    }
+
+    //TODO есть проблема с корректным чтением пути файла, так как символ '\' в java это escape символ
+    @ShellMethod(key = "import", value = "Import data")
+    public String importNotes(
+            @ShellOption(arity = 1, value = {"--path", "-p"}, help = "Specify an absolute path") String path
+    ) {
+        shellHelper.printInfo("Identical data will be replaced with new data.");
+        try {
+            ingestionCommand.execute(path, null);
+        } catch (IngestionCommandException e) {
+            Throwable cause = e.getCause(); // ImportCommandException -> ImportFileProtectedException
+            if(cause instanceof IngestionFileProtectedException) {
+                shellHelper.printWarning("This file is password protected");
+                String inputPassword = lineReader.readLine("Please enter the password to access the file - ", '*');
+                ingestionCommand.execute(path, inputPassword);
+            }
+
+            throw e;
+        }
 
         return "Success";
     }
