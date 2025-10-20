@@ -1,16 +1,16 @@
-package com.manager.cli_password_manager.core.export.strategies;
+package com.manager.cli_password_manager.core.service.command.usecase.export.strategies;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.manager.cli_password_manager.core.entity.Note;
-import com.manager.cli_password_manager.core.entity.dto.export.EncryptedExportContainer;
-import com.manager.cli_password_manager.core.entity.dto.export.NoteExportDTO;
+import com.manager.cli_password_manager.core.entity.dto.io.EncryptedExportContainer;
+import com.manager.cli_password_manager.core.entity.dto.io.NoteExportDTO;
 import com.manager.cli_password_manager.core.entity.enums.IOEncryptorAlgorithm;
 import com.manager.cli_password_manager.core.entity.mapper.NoteMapper;
-import com.manager.cli_password_manager.core.export.ExportContext;
-import com.manager.cli_password_manager.core.export.ExportFormat;
-import com.manager.cli_password_manager.core.export.NoteExporter;
+import com.manager.cli_password_manager.core.service.command.usecase.export.ExportContext;
+import com.manager.cli_password_manager.core.service.command.usecase.export.ExportFormat;
+import com.manager.cli_password_manager.core.service.command.usecase.export.NoteExporter;
 import com.manager.cli_password_manager.core.service.export.IOEncryptionService;
 import org.springframework.stereotype.Component;
 

@@ -1,11 +1,9 @@
 package com.manager.cli_password_manager.core.service.export;
 
 import com.manager.cli_password_manager.core.exception.export.ExportException;
-import com.manager.cli_password_manager.core.export.ExportContext;
-import com.manager.cli_password_manager.core.export.ExportFormat;
-import com.manager.cli_password_manager.core.export.NoteExporter;
-import jakarta.annotation.Nullable;
-import lombok.RequiredArgsConstructor;
+import com.manager.cli_password_manager.core.service.command.usecase.export.ExportContext;
+import com.manager.cli_password_manager.core.service.command.usecase.export.ExportFormat;
+import com.manager.cli_password_manager.core.service.command.usecase.export.NoteExporter;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedOutputStream;

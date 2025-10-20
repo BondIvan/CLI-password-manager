@@ -3,7 +3,7 @@ package com.manager.cli_password_manager.core.entity.mapper;
 import com.manager.cli_password_manager.core.entity.Note;
 import com.manager.cli_password_manager.core.entity.dto.command.DecryptedNoteDTO;
 import com.manager.cli_password_manager.core.entity.dto.command.NoteNamePlusLoginDTO;
-import com.manager.cli_password_manager.core.entity.dto.export.NoteExportDTO;
+import com.manager.cli_password_manager.core.entity.dto.io.NoteExportDTO;
 import com.manager.cli_password_manager.security.encrypt.aes.AesPasswordEncryptor;
 import org.springframework.stereotype.Component;
 

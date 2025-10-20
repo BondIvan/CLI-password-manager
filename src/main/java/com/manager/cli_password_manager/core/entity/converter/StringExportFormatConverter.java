@@ -1,6 +1,6 @@
 package com.manager.cli_password_manager.core.entity.converter;
 
-import com.manager.cli_password_manager.core.export.ExportFormat;
+import com.manager.cli_password_manager.core.service.command.usecase.export.ExportFormat;
 import org.springframework.stereotype.Component;
 
 @Component

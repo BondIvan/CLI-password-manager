@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.manager.cli_password_manager.core.entity.Note;
 import com.manager.cli_password_manager.core.entity.converter.StringCategoryConverter;
 import com.manager.cli_password_manager.core.entity.converter.StringIOEncryptorAlgorithm;
-import com.manager.cli_password_manager.core.entity.dto.export.EncryptedExportContainer;
+import com.manager.cli_password_manager.core.entity.dto.io.EncryptedExportContainer;
 import com.manager.cli_password_manager.core.entity.enums.Category;
 import com.manager.cli_password_manager.core.entity.enums.IOEncryptorAlgorithm;
 import com.manager.cli_password_manager.core.entity.enums.IngestionFormat;

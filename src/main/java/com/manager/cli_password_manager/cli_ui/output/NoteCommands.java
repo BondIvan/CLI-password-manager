@@ -16,7 +16,7 @@ import com.manager.cli_password_manager.core.entity.enums.CheckingApi;
 import com.manager.cli_password_manager.core.entity.enums.IngestionResult;
 import com.manager.cli_password_manager.core.entity.enums.ReplaceType;
 import com.manager.cli_password_manager.core.entity.enums.SortType;
-import com.manager.cli_password_manager.core.export.ExportFormat;
+import com.manager.cli_password_manager.core.service.command.usecase.export.ExportFormat;
 import com.manager.cli_password_manager.core.provider.CategoryValueProvider;
 import com.manager.cli_password_manager.core.provider.ReplaceTypeValueProvider;
 import com.manager.cli_password_manager.core.provider.ServiceNameValueProvider;
