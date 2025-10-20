@@ -1,6 +1,7 @@
 package com.manager.cli_password_manager.security.encrypt.aes;
 
 import com.manager.cli_password_manager.core.exception.security.CryptoAesOperationException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.AEADBadTagException;
@@ -22,6 +23,7 @@ import java.security.spec.KeySpec;
 import java.util.Arrays;
 
 @Service
+@RequiredArgsConstructor
 public class AesCryptoService {
     private static final String MODE = "AES/GCM/NoPadding";
     private static final String KEY_ALGORITHM = "PBKDF2WithHmacSHA256";
@@ -30,11 +32,8 @@ public class AesCryptoService {
     private static final int GCM_TAG_LENGTH = 128;
     public static final int SALT_LENGTH = 16;
     public static final int GCM_IV_LENGTH = 12;
-    private final SecureRandom secureRandom;
 
-    public AesCryptoService(SecureRandom secureRandom) {
-        this.secureRandom = secureRandom;
-    }
+    private final SecureRandom secureRandom;
 
     public byte[] encrypt(byte[] plainText, SecretKey secretKey, byte[] iv) {
         try {

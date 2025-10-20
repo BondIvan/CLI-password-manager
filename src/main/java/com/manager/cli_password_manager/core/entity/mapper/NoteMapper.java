@@ -4,22 +4,24 @@ import com.manager.cli_password_manager.core.entity.Note;
 import com.manager.cli_password_manager.core.entity.dto.command.DecryptedNoteDTO;
 import com.manager.cli_password_manager.core.entity.dto.command.NoteNamePlusLoginDTO;
 import com.manager.cli_password_manager.core.entity.dto.io.NoteExportDTO;
-import com.manager.cli_password_manager.security.encrypt.aes.AesPasswordEncryptor;
+import com.manager.cli_password_manager.security.encrypt.PasswordEncryptor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
 public class NoteMapper {
-    private final AesPasswordEncryptor aesPasswordEncryptor;
+    @Qualifier("aesPasswordEncryptor")
+    private final PasswordEncryptor passwordEncryptor;
 
-    public NoteMapper(AesPasswordEncryptor aesPasswordEncryptor) {
-        this.aesPasswordEncryptor = aesPasswordEncryptor;
+    public NoteMapper(PasswordEncryptor passwordEncryptor) {
+        this.passwordEncryptor = passwordEncryptor;
     }
 
     public DecryptedNoteDTO toDecryptedDto(Note note) {
         return new DecryptedNoteDTO(
                 note.getName(),
                 note.getLogin(),
-                aesPasswordEncryptor.decryptPassword(note.getId(), note.getPassword()),
+                passwordEncryptor.decryptPassword(note.getId(), note.getPassword()),
                 note.getCategory()
         );
     }
@@ -36,7 +38,7 @@ public class NoteMapper {
                 note.getName(),
                 note.getLogin(),
                 note.getCategory().name(),
-                aesPasswordEncryptor.decryptPassword(note.getId(), note.getPassword())
+                passwordEncryptor.decryptPassword(note.getId(), note.getPassword())
         );
     }
 }

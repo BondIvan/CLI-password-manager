@@ -5,15 +5,13 @@ import com.manager.cli_password_manager.core.entity.converter.StringCategoryConv
 import com.manager.cli_password_manager.core.entity.enums.Category;
 import com.manager.cli_password_manager.core.entity.enums.ReplaceType;
 import com.manager.cli_password_manager.core.service.command.usecase.replace.Replacement;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class CategoryReplacer implements Replacement {
     private final StringCategoryConverter categoryConverter;
-
-    public CategoryReplacer(StringCategoryConverter categoryConverter) {
-        this.categoryConverter = categoryConverter;
-    }
 
     @Override
     public Note replace(Note replacingNote, String newCategory) {

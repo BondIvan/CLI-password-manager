@@ -7,6 +7,7 @@ import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
 import com.manager.cli_password_manager.core.repository.InMemoryVaultRepository;
 import com.manager.cli_password_manager.core.service.file.saver.StorageManager;
 import com.manager.cli_password_manager.core.service.vault.impl.VaultStateService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -15,22 +16,12 @@ import java.util.Optional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class DeleteCommand {
     private final InMemoryNotesRepository notesRepository;
     private final InMemoryVaultRepository vaultRepository;
     private final StorageManager storageManager;
     private final VaultStateService vaultStateService;
-
-    public DeleteCommand(InMemoryNotesRepository notesRepository,
-                         InMemoryVaultRepository vaultRepository,
-                         StorageManager storageManager,
-                         VaultStateService vaultStateService
-    ) {
-        this.notesRepository = notesRepository;
-        this.vaultRepository = vaultRepository;
-        this.storageManager = storageManager;
-        this.vaultStateService = vaultStateService;
-    }
 
     public boolean execute(NoteNamePlusLoginDTO inputNameLoginDto) {
         Optional<List<Note>> notesByName = notesRepository.findNotesByServiceName(inputNameLoginDto.name());

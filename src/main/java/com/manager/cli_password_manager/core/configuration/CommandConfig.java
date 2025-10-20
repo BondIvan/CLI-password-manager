@@ -1,11 +1,17 @@
 package com.manager.cli_password_manager.core.configuration;
 
 import com.manager.cli_password_manager.core.entity.enums.CheckingApi;
+import com.manager.cli_password_manager.core.entity.enums.IOEncryptorAlgorithm;
+import com.manager.cli_password_manager.core.entity.enums.IngestionFormat;
 import com.manager.cli_password_manager.core.entity.enums.ReplaceType;
 import com.manager.cli_password_manager.core.entity.enums.SortType;
 import com.manager.cli_password_manager.core.service.command.usecase.check.Checker;
+import com.manager.cli_password_manager.core.service.command.usecase.export.ExportFormat;
+import com.manager.cli_password_manager.core.service.command.usecase.export.NoteExporter;
 import com.manager.cli_password_manager.core.service.command.usecase.getall.NoteGrouper;
+import com.manager.cli_password_manager.core.service.command.usecase.ingestion.NoteIngester;
 import com.manager.cli_password_manager.core.service.command.usecase.replace.Replacement;
+import com.manager.cli_password_manager.security.encrypt.IOEncryptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -23,7 +29,8 @@ public class CommandConfig {
                 .collect(Collectors.toMap(
                         NoteGrouper::getSortType,
                         Function.identity(),
-                        (g1, g2) -> g1, () -> new EnumMap<>(SortType.class)
+                        (g1, g2) -> g1,
+                        () -> new EnumMap<>(SortType.class)
                 ));
     }
 
@@ -33,7 +40,8 @@ public class CommandConfig {
                 .collect(Collectors.toMap(
                         Replacement::getReplaceType,
                         Function.identity(),
-                        (r1, r2) -> r1, () -> new EnumMap<>(ReplaceType.class)
+                        (r1, r2) -> r1,
+                        () -> new EnumMap<>(ReplaceType.class)
                 ));
     }
 
@@ -43,7 +51,41 @@ public class CommandConfig {
                 .collect(Collectors.toMap(
                         Checker::getType,
                         Function.identity(),
-                        (c1, c2) -> c1, () -> new EnumMap<>(CheckingApi.class)
+                        (c1, c2) -> c1,
+                        () -> new EnumMap<>(CheckingApi.class)
+                ));
+    }
+
+    @Bean
+    public Map<ExportFormat, NoteExporter> exportFormatWithNoteExporterMap(List<NoteExporter> exporters) {
+        return exporters.stream()
+                .collect(Collectors.toMap(
+                        NoteExporter::getFormat,
+                        Function.identity(),
+                        (e1, e2) -> e1,
+                        () -> new EnumMap<>(ExportFormat.class)
+                ));
+    }
+
+    @Bean
+    public Map<IngestionFormat, NoteIngester> ingestionFormatWithNoteIngesterMap(List<NoteIngester> ingesters) {
+        return ingesters.stream()
+                .collect(Collectors.toMap(
+                        NoteIngester::getFormat,
+                        Function.identity(),
+                        (i1, i2) -> i1,
+                        () -> new EnumMap<>(IngestionFormat.class)
+                ));
+    }
+
+    @Bean
+    public Map<IOEncryptorAlgorithm, IOEncryptor> IOEncryptorAlgorithmWithIOEncryptorMap(List<IOEncryptor> encryptors) {
+        return encryptors.stream()
+                .collect(Collectors.toMap(
+                        IOEncryptor::getAlgorithm,
+                        Function.identity(),
+                        (e1, e2) -> e1,
+                        () -> new EnumMap<>(IOEncryptorAlgorithm.class)
                 ));
     }
 }

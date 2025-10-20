@@ -4,6 +4,7 @@ import com.manager.cli_password_manager.core.entity.Note;
 import com.manager.cli_password_manager.core.entity.converter.StringIngestionFormatConverter;
 import com.manager.cli_password_manager.core.entity.enums.IngestionFormat;
 import com.manager.cli_password_manager.core.exception.IO.IngestionException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -12,24 +13,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class IngestionService {
     private final Map<IngestionFormat, NoteIngester> importers;
     private final StringIngestionFormatConverter importFormatConverter;
-
-    public IngestionService(List<NoteIngester> importerList,
-                            StringIngestionFormatConverter importFormatConverter) {
-        this.importers = importerList.stream()
-                .collect(Collectors.toMap(
-                        NoteIngester::getFormat,
-                        Function.identity()
-                ));
-
-        this.importFormatConverter = importFormatConverter;
-    }
 
     public IngestionFormat getImportFormatFromFileExtension(Path path) {
         String fileName = path.getFileName().toString();

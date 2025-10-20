@@ -5,6 +5,7 @@ import com.manager.cli_password_manager.core.exception.file.loader.FileLoaderExc
 import com.manager.cli_password_manager.core.service.file.creator.SecureFileCreator;
 import com.manager.cli_password_manager.core.service.file.creator.directory.ApplicationDirectoryManager;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.DependsOn;
@@ -20,9 +21,10 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
-@DependsOn("applicationDirectoryProvider")
 @Slf4j
 @Component
+@DependsOn("applicationDirectoryProvider")
+@RequiredArgsConstructor
 public class KeyStoreLoader {
     private static final String KEYSTORE_TYPE = "PKCS12";
 
@@ -33,12 +35,6 @@ public class KeyStoreLoader {
 
     private final SecureFileCreator fileCreator;
     private final ApplicationDirectoryManager directoryManager;
-
-    public KeyStoreLoader(SecureFileCreator fileCreator,
-                          ApplicationDirectoryManager directoryManager) {
-        this.fileCreator = fileCreator;
-        this.directoryManager = directoryManager;
-    }
 
     @PostConstruct
     public void init() {

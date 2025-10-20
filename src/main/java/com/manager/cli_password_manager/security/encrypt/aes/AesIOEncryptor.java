@@ -54,7 +54,7 @@ public class AesIOEncryptor implements IOEncryptor {
     }
 
     @Override
-    public IOEncryptorAlgorithm getExportAlgorithm() {
+    public IOEncryptorAlgorithm getAlgorithm() {
         return IOEncryptorAlgorithm.AES_GCM_256;
     }
 }

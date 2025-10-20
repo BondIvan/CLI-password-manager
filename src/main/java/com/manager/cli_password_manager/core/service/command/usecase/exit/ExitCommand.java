@@ -8,8 +8,8 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.commands.Quit;
 
-@RequiredArgsConstructor
 @ShellComponent
+@RequiredArgsConstructor
 public class ExitCommand implements Quit.Command {
     private final ClipboardService clipboardService;
     private final InMemoryVaultRepository inMemoryVaultRepository;

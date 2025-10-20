@@ -3,6 +3,7 @@ package com.manager.cli_password_manager.core.repository;
 import com.manager.cli_password_manager.core.exception.vault.VaultException;
 import com.manager.cli_password_manager.core.service.file.loader.KeyStoreLoader;
 import com.manager.cli_password_manager.core.service.vault.impl.VaultStateService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -15,15 +16,11 @@ import java.util.Set;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class InMemoryVaultRepository implements VaultRepository {
     private final KeyStoreLoader keyStoreLoader;
     private final VaultStateService vaultStateService;
     private KeyStore keyStoreInstance;
-
-    public InMemoryVaultRepository(KeyStoreLoader keyStoreLoader, VaultStateService vaultStateService) {
-        this.keyStoreLoader = keyStoreLoader;
-        this.vaultStateService = vaultStateService;
-    }
 
     @Override
     public void unlockVault(char[] password) {

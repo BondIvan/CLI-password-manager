@@ -9,6 +9,7 @@ import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
 import com.manager.cli_password_manager.core.repository.InMemoryVaultRepository;
 import com.manager.cli_password_manager.core.service.file.saver.StorageManager;
 import com.manager.cli_password_manager.core.service.vault.impl.VaultStateService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -18,24 +19,13 @@ import java.util.Optional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ReplaceCommand {
     private final InMemoryNotesRepository notesRepository;
     private final InMemoryVaultRepository vaultRepository;
     private final VaultStateService vaultStateService;
     private final StorageManager storageManager;
     private final Map<ReplaceType, Replacement> replaceManager;
-
-    public ReplaceCommand(InMemoryNotesRepository notesRepository,
-                          Map<ReplaceType, Replacement> replacements,
-                          StorageManager storageManager,
-                          InMemoryVaultRepository vaultRepository,
-                          VaultStateService vaultStateService) {
-        this.notesRepository = notesRepository;
-        this.replaceManager = replacements;
-        this.storageManager = storageManager;
-        this.vaultRepository = vaultRepository;
-        this.vaultStateService = vaultStateService;
-    }
 
     public boolean execute(InputReplaceDTO inputReplaceDTO) {
         Optional<List<Note>> optionalNotes = notesRepository.findNotesByServiceName(inputReplaceDTO.serviceName());

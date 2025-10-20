@@ -5,11 +5,14 @@ import com.manager.cli_password_manager.core.entity.enums.ReplaceType;
 import com.manager.cli_password_manager.core.service.command.usecase.replace.Replacement;
 import com.manager.cli_password_manager.core.service.password.PasswordValidation;
 import com.manager.cli_password_manager.security.encrypt.PasswordEncryptor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PasswordReplacer implements Replacement {
     private final PasswordValidation passwordValidation;
+    
+    @Qualifier("aesPasswordEncryptor")
     private final PasswordEncryptor passwordEncryptor;
 
     public PasswordReplacer(PasswordValidation passwordValidation,

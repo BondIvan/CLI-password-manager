@@ -12,6 +12,7 @@ import com.manager.cli_password_manager.core.service.command.usecase.export.Expo
 import com.manager.cli_password_manager.core.service.command.usecase.export.ExportFormat;
 import com.manager.cli_password_manager.core.service.command.usecase.export.NoteExporter;
 import com.manager.cli_password_manager.security.encrypt.IOEncryptionService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
@@ -29,7 +30,7 @@ public class JsonNoteExporter implements NoteExporter {
     public JsonNoteExporter(ObjectMapper objectMapper,
                             IOEncryptionService ioEncryptorService,
                             NoteMapper noteMapper) {
-        this.objectMapper = objectMapper.copy();
+        this.objectMapper = objectMapper.copy(); // copy
         this.ioEncryptorService = ioEncryptorService;
         this.noteMapper = noteMapper;
     }

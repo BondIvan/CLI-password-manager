@@ -5,18 +5,16 @@ import com.manager.cli_password_manager.core.entity.enums.ReplaceType;
 import com.manager.cli_password_manager.core.exception.command.ReplaceValidationException;
 import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
 import com.manager.cli_password_manager.core.service.command.usecase.replace.Replacement;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 public class LoginReplacer implements Replacement {
     private final InMemoryNotesRepository notesRepository;
-
-    public LoginReplacer(InMemoryNotesRepository notesRepository) {
-        this.notesRepository = notesRepository;
-    }
 
     @Override
     public Note replace(Note replacingNote, String newLogin) {

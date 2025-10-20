@@ -3,24 +3,15 @@ package com.manager.cli_password_manager.security.encrypt;
 import com.manager.cli_password_manager.core.entity.dto.io.EncryptedExportContainer;
 import com.manager.cli_password_manager.core.entity.enums.IOEncryptorAlgorithm;
 import com.manager.cli_password_manager.core.exception.export.ExportException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class IOEncryptionService {
     private final Map<IOEncryptorAlgorithm, IOEncryptor> encryptors;
-
-    public IOEncryptionService(List<IOEncryptor> encryptorList) {
-        this.encryptors = encryptorList.stream()
-                .collect(Collectors.toMap(
-                        IOEncryptor::getExportAlgorithm,
-                        Function.identity()
-                ));
-    }
 
     public EncryptedExportContainer exportData(byte[] data, IOEncryptorAlgorithm algorithm, char[] password) {
         IOEncryptor encryptor = encryptors.get(algorithm);

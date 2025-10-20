@@ -10,6 +10,7 @@ import com.manager.cli_password_manager.core.exception.file.loader.FileLoaderExc
 import com.manager.cli_password_manager.core.service.file.creator.SecureFileCreator;
 import com.manager.cli_password_manager.core.service.file.creator.directory.ApplicationDirectoryManager;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.DependsOn;
@@ -23,6 +24,7 @@ import java.util.TreeMap;
 @Slf4j
 @Component
 @DependsOn("applicationDirectoryProvider")
+@RequiredArgsConstructor
 public class AccessLoader {
     @Value("${shell.file.accessFile}")
     private  String accessFileName;
@@ -32,14 +34,6 @@ public class AccessLoader {
     private final ObjectMapper objectMapper;
     private final SecureFileCreator fileCreator;
     private final ApplicationDirectoryManager directoryManager;
-
-    public AccessLoader(SecureFileCreator fileCreator,
-                        ObjectMapper objectMapper,
-                        ApplicationDirectoryManager directoryManager) {
-        this.fileCreator = fileCreator;
-        this.objectMapper = objectMapper;
-        this.directoryManager = directoryManager;
-    }
 
     @PostConstruct
     public void init() {

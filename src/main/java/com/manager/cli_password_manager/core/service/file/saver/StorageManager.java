@@ -6,6 +6,7 @@ import com.manager.cli_password_manager.core.service.file.loader.AccessLoader;
 import com.manager.cli_password_manager.core.service.file.loader.KeyStoreLoader;
 import com.manager.cli_password_manager.core.repository.InMemoryVaultRepository;
 import com.manager.cli_password_manager.core.service.vault.impl.VaultStateService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -16,25 +17,13 @@ import java.nio.file.StandardCopyOption;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class StorageManager {
     private final KeyStoreLoader keyStoreLoader;
     private final AccessLoader accessLoader;
     private final VaultStateService vaultStateService;
     private final InMemoryVaultRepository vaultRepository;
     private final InMemoryNotesRepository notesRepository;
-
-    public StorageManager(KeyStoreLoader keyStoreLoader,
-                          AccessLoader accessLoader,
-                          VaultStateService vaultStateService,
-                          InMemoryVaultRepository inMemoryVaultRepository,
-                          InMemoryNotesRepository inMemoryNotesRepository
-    ) {
-        this.keyStoreLoader = keyStoreLoader;
-        this.accessLoader = accessLoader;
-        this.vaultStateService = vaultStateService;
-        this.vaultRepository = inMemoryVaultRepository;
-        this.notesRepository = inMemoryNotesRepository;
-    }
 
     public void transactionalFilesSave() {
         Path vaultPath = keyStoreLoader.getVaultPathFile();

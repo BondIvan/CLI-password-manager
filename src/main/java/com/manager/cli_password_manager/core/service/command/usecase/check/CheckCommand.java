@@ -11,6 +11,7 @@ import com.manager.cli_password_manager.core.exception.checker.HIBPCheckerExcept
 import com.manager.cli_password_manager.core.exception.command.CheckCommandException;
 import com.manager.cli_password_manager.core.progressReporter.ProgressReporter;
 import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -22,16 +23,11 @@ import java.util.Optional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CheckCommand {
     private final InMemoryNotesRepository notesRepository;
     private final Map<CheckingApi, Checker> checkers;
     private final NoteMapper noteMapper;
-
-    public CheckCommand(InMemoryNotesRepository notesRepository, Map<CheckingApi, Checker> checkers, NoteMapper noteMapper) {
-        this.notesRepository = notesRepository;
-        this.checkers = checkers;
-        this.noteMapper = noteMapper;
-    }
 
     public List<CheckerResult> execute(InputCheckDTO inputCheckDTO, ProgressReporter reporter) {
         Checker checker = checkers.get(inputCheckDTO.api());

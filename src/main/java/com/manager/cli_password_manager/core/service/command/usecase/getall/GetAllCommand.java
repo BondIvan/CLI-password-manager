@@ -6,6 +6,7 @@ import com.manager.cli_password_manager.core.entity.enums.SortType;
 import com.manager.cli_password_manager.core.entity.mapper.NoteMapper;
 import com.manager.cli_password_manager.core.exception.command.GetAllCommandException;
 import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumMap;
@@ -15,19 +16,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class GetAllCommand {
     private final InMemoryNotesRepository notesRepository;
     private final NoteMapper noteMapper;
     private final Map<SortType, NoteGrouper> grouperManager;
-
-    public GetAllCommand(InMemoryNotesRepository notesRepository,
-                         NoteMapper noteMapper,
-                         Map<SortType, NoteGrouper> groupers
-    ) {
-        this.notesRepository = notesRepository;
-        this.noteMapper = noteMapper;
-        this.grouperManager = groupers;
-    }
 
     public Map<String, List<NoteNamePlusLoginDTO>> execute(String sortBy) {
         SortType type = SortType.fromString(sortBy);

@@ -45,7 +45,7 @@ public class JsonNoteIngester implements NoteIngester {
                             StringCategoryConverter categoryConverter,
                             PasswordEncryptor passwordEncryptor,
                             StringIOEncryptorAlgorithm stringIOEncryptorAlgorithm) {
-        this.objectMapper = objectMapper.copy();
+        this.objectMapper = objectMapper.copy(); // copy
         this.ioEncryptionService = ioEncryptionService;
         this.categoryConverter = categoryConverter;
         this.passwordEncryptor = passwordEncryptor;
