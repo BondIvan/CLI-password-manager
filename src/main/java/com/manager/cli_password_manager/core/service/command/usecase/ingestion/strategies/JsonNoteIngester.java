@@ -73,7 +73,7 @@ public class JsonNoteIngester implements NoteIngester {
 
             return plainImport(inputStream);
         } catch (IllegalArgumentException e) {
-            throw new IngestionException("Unknown encryption algorithm", e);
+            throw new IngestionException("Json unknown algorithm", e);
         } catch (IOException e) {
             throw new IngestionException("Json import exception: " + e.getMessage(), e);
         }
@@ -152,6 +152,7 @@ public class JsonNoteIngester implements NoteIngester {
                                     note.setCategory(category);
                                 }
                                 case "password" -> {
+                                    // It might be slow because of this.
                                     String encryptedPassword = passwordEncryptor.encryptPassword(note.getId(), parser.getText());
                                     note.setPassword(encryptedPassword);
                                 }

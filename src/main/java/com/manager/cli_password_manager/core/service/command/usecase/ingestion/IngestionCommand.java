@@ -1,7 +1,9 @@
 package com.manager.cli_password_manager.core.service.command.usecase.ingestion;
 
 import com.manager.cli_password_manager.core.entity.Note;
+import com.manager.cli_password_manager.core.entity.dto.io.MergeResult;
 import com.manager.cli_password_manager.core.entity.enums.IngestionFormat;
+import com.manager.cli_password_manager.core.entity.enums.IngestionResult;
 import com.manager.cli_password_manager.core.exception.IO.IngestionCommandException;
 import com.manager.cli_password_manager.core.exception.IO.IngestionException;
 import com.manager.cli_password_manager.core.exception.IO.IngestionFileProtectedException;
@@ -34,13 +36,13 @@ public class IngestionCommand {
     private final InMemoryVaultRepository vaultRepository;
     private final VaultStateService vaultStateService;
 
-    public void execute(String filePath, String password) {
-        // is file available
-        // has file permissions
-
+    public IngestionResult execute(String filePath, String password) {
         Path path = Paths.get(filePath);
-        if(!Files.exists(path))
+        if(!Files.isRegularFile(path))
             throw new IngestionCommandException("Cannot find the file");
+
+        if(!Files.isReadable(path))
+            throw new IngestionCommandException("Cannot read the file. Check permissions");
 
         IngestionContext ingestionContext = new IngestionContext(
                 path,
@@ -54,13 +56,16 @@ public class IngestionCommand {
             Map<String, List<Note>> notes = notesRepository.getAllNotes();
             Map<String, List<Note>> copy = new HashMap<>(notes);
 
-            ingestionMerge.merge(copy, imported);
-            notesRepository.addAll(copy);
+            MergeResult mergeResult = ingestionMerge.merge(copy, imported);
+            notesRepository.update(mergeResult.merged());
+            mergeResult.replacedNoteIds().forEach(vaultRepository::deleteKey);
 
             storageManager.transactionalFilesSave();
 
+            return IngestionResult.SUCCESS;
+
         } catch (IngestionFileProtectedException e) {
-            throw new IngestionCommandException(e);
+            return IngestionResult.PASSWORD_REQUIRED;
         } catch (IngestionException e) {
             throw new IngestionCommandException(e.getMessage());
         } catch (IllegalArgumentException e) {
@@ -68,7 +73,7 @@ public class IngestionCommand {
         } catch (IOException e) {
             throw new IngestionCommandException("Import failed: " + e.getMessage(), e);
         } catch (StorageManagerException e) {
-            log.error("Не удалось импортировать данные.");
+            log.error("Import failed by reason: cannot save files.");
             this.rollback();
             throw new IngestionCommandException("Import failed by reason: cannot save files", e);
         }

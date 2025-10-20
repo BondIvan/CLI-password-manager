@@ -38,8 +38,8 @@ public class InMemoryNotesRepository implements NoteRepository {
         notes.computeIfAbsent(newNote.getName().toLowerCase(), k -> new ArrayList<>()).add(newNote);
     }
 
-    public void addAll(Map<String, List<Note>> m) {
-        notes.putAll(m);
+    public void update(Map<String, List<Note>> m) {
+        this.notes = new HashMap<>(m);
     }
 
     @Override
