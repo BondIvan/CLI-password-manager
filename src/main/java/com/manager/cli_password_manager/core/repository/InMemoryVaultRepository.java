@@ -34,14 +34,6 @@ public class InMemoryVaultRepository implements VaultRepository {
 
     @Override
     public void lockVault() {
-//        try {
-//            Iterator<String> iterator = keyStoreInstance.aliases().asIterator();
-//            while(iterator.hasNext()) {
-//                String alias = iterator.next();
-//                System.out.println("alias -> " + alias);
-//            }
-//        } catch (Exception ignore) {}
-
         if (isVaultUnlocked()) {
             keyStoreInstance = null;
             vaultStateService.lock();

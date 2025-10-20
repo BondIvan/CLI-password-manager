@@ -1,9 +1,8 @@
-package com.manager.cli_password_manager.core.service.export;
+package com.manager.cli_password_manager.security.encrypt;
 
 import com.manager.cli_password_manager.core.entity.dto.io.EncryptedExportContainer;
 import com.manager.cli_password_manager.core.entity.enums.IOEncryptorAlgorithm;
 import com.manager.cli_password_manager.core.exception.export.ExportException;
-import com.manager.cli_password_manager.security.encrypt.IOEncryptor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

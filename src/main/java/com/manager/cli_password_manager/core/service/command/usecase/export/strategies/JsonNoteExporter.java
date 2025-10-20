@@ -11,7 +11,7 @@ import com.manager.cli_password_manager.core.entity.mapper.NoteMapper;
 import com.manager.cli_password_manager.core.service.command.usecase.export.ExportContext;
 import com.manager.cli_password_manager.core.service.command.usecase.export.ExportFormat;
 import com.manager.cli_password_manager.core.service.command.usecase.export.NoteExporter;
-import com.manager.cli_password_manager.core.service.export.IOEncryptionService;
+import com.manager.cli_password_manager.security.encrypt.IOEncryptionService;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;

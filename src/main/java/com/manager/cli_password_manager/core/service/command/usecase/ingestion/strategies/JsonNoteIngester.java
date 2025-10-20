@@ -15,7 +15,7 @@ import com.manager.cli_password_manager.core.exception.IO.IngestionFileProtected
 import com.manager.cli_password_manager.core.exception.security.CryptoAesOperationException;
 import com.manager.cli_password_manager.core.service.command.usecase.ingestion.IngestionContext;
 import com.manager.cli_password_manager.core.service.command.usecase.ingestion.NoteIngester;
-import com.manager.cli_password_manager.core.service.export.IOEncryptionService;
+import com.manager.cli_password_manager.security.encrypt.IOEncryptionService;
 import com.manager.cli_password_manager.security.encrypt.PasswordEncryptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
