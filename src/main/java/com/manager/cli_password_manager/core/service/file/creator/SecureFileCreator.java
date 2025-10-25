@@ -12,4 +12,9 @@ public class SecureFileCreator extends AbstractFileCreator {
     protected void create(Path path) throws IOException {
         Files.createFile(path);
     }
+
+    @Override
+    protected Path createTmp(Path path, String prefix) throws IOException {
+        return Files.createTempFile(path, prefix, null);
+    }
 }

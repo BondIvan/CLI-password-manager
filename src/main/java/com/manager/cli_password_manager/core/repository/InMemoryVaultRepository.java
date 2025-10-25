@@ -1,30 +1,64 @@
 package com.manager.cli_password_manager.core.repository;
 
 import com.manager.cli_password_manager.core.exception.vault.VaultException;
+import com.manager.cli_password_manager.core.service.file.creator.SecureFileCreator;
 import com.manager.cli_password_manager.core.service.file.loader.KeyStoreLoader;
+import com.manager.cli_password_manager.core.service.annotation.FileTransactionManager;
 import com.manager.cli_password_manager.core.service.vault.impl.VaultStateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.crypto.SecretKey;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class InMemoryVaultRepository implements VaultRepository {
+public class InMemoryVaultRepository implements VaultRepository, FileTransactionRollbackLoading {
     private final KeyStoreLoader keyStoreLoader;
     private final VaultStateService vaultStateService;
+    private final FileTransactionManager fileTransactionManager;
+    private final SecureFileCreator fileCreator;
+
     private KeyStore keyStoreInstance;
+
+    public void saveToFile() {
+        try {
+            Optional<Path> appTmpSavingDir = fileTransactionManager.getCurrentTransactionalDirectory();
+            if (appTmpSavingDir.isPresent()) {
+                Path tmpSavingDir = appTmpSavingDir.get();
+                Path tmpKeyStoreFilePath = fileCreator.createTmpAndSecure(tmpSavingDir, "ks-");
+                Path originalFilePath = keyStoreLoader.getVaultPathFile();
+
+                keyStoreLoader.saveKeyStoreToFile(keyStoreInstance, vaultStateService.getVaultPassword(), tmpKeyStoreFilePath);
+
+                fileTransactionManager.registerFile(originalFilePath, tmpKeyStoreFilePath);
+
+                log.info("Tmp vault file created successfully");
+            } else {
+                throw new RuntimeException("Метод должен быть транзакционным - [FileTransaction]");
+            }
+        } catch (IOException e) {
+            throw new VaultException("Error saving file: cannot create tmp keyStore file", e);
+        }
+    }
+
+    @Override
+    public void rollbackFileState() {
+        log.warn("Rolling back in memory state for vault repository");
+        unlockVault(vaultStateService.getVaultPassword());
+    }
 
     @Override
     public void unlockVault(char[] password) {
-        log.info("Unlocking the vault");
         keyStoreInstance = keyStoreLoader.loadKeyStore(password);
         vaultStateService.unlock(password);
     }
@@ -48,7 +82,11 @@ public class InMemoryVaultRepository implements VaultRepository {
 
     @Override
     public void updateKey(String aliasId, SecretKey newKey) {
+        fileTransactionManager.registerRepoParticipant(this);
+
         addKey(aliasId, newKey); // will be updated automatically inside
+
+        this.saveToFile();
     }
 
     @Override
@@ -77,6 +115,8 @@ public class InMemoryVaultRepository implements VaultRepository {
 
     @Override
     public void addKey(String aliasId, SecretKey key) {
+        fileTransactionManager.registerRepoParticipant(this);
+
         if (!isVaultUnlocked()) {
             log.error("Cannot save key to the vault, because vault is locked");
             throw new VaultException("Vault is locked");
@@ -91,10 +131,14 @@ public class InMemoryVaultRepository implements VaultRepository {
             log.error("Cannot set key to the keyStore: {}", e.getMessage());
             throw new VaultException("Cannot set key to the keyStore: " + e.getMessage(), e);
         }
+
+        this.saveToFile();
     }
 
     @Override
     public void deleteKey(String aliasId) {
+        fileTransactionManager.registerRepoParticipant(this);
+
         if (!isVaultUnlocked()) {
             log.error("Cannot delete key from vault, because vault is locked");
             throw new VaultException("Vault is locked");
@@ -111,6 +155,8 @@ public class InMemoryVaultRepository implements VaultRepository {
             log.error("Cannot delete key from the keyStore: {}", e.getMessage());
             throw new VaultException("Cannot delete key from the keyStore: " + e.getMessage(), e);
         }
+
+        this.saveToFile();
     }
 
     @Override
@@ -128,7 +174,7 @@ public class InMemoryVaultRepository implements VaultRepository {
         return set;
     }
 
-    public KeyStore getKeyStoreInstance() {
+    public KeyStore getKeyStoreInstance() { //TODO Скорее всего не понадобится
         return keyStoreInstance;
     }
 }

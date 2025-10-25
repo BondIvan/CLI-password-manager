@@ -23,38 +23,56 @@ public abstract class AbstractFileCreator {
 
     protected abstract void create(Path path) throws IOException;
 
+    protected abstract Path createTmp(Path path, String prefix) throws IOException;
+
     public void createAndSecure(Path path) throws FileCreatorException {
         try {
             if(!Files.exists(path))
                 create(path);
 
-            FileStore fileStore = Files.getFileStore(path);
-
-            boolean isWindows = fileStore.supportsFileAttributeView(AclFileAttributeView.class);
-            boolean isLinuxOrMac = fileStore.supportsFileAttributeView(PosixFileAttributeView.class);
-
-            if(isWindows) {
-                try {
-                    setAclPermissions(path);
-                } catch (IOException e) {
-                    log.warn("Не удалось применить права ACL: {}", e.getMessage());
-                    throw new FileCreatorException("Не удалось применить права ACL: " + e.getMessage(), e);
-                }
-            }
-
-            if(isLinuxOrMac) {
-                try {
-                    setPosixPermissions(path);
-                } catch (IOException e) {
-                    log.warn("Не удалось применить права POSIX: {}", e.getMessage());
-                    throw new FileCreatorException("Не удалось применить права POSIX: " + e.getMessage(), e);
-                }
-            }
+            secureFile(path);
         } catch (IOException e) {
             log.error("Cannot create file/directory by next path - [{}] by reason: {}", path, e.getCause().getMessage());
             throw new FileCreatorException("Creating file/directory error: " + e.getMessage(), e);
         }
+    }
 
+    public Path createTmpAndSecure(Path path, String prefix) throws FileCreatorException {
+        try {
+            Path securedPath = createTmp(path, prefix);
+
+            secureFile(securedPath);
+
+            return securedPath;
+        } catch (IOException e) {
+            log.error("Cannot create tmp file/directory by next path - [{}] by reason: {}", path, e.getCause().getMessage());
+            throw new FileCreatorException("Creating tmp file/directory error: " + e.getMessage(), e);
+        }
+    }
+
+    private void secureFile(Path path) throws IOException {
+        FileStore fileStore = Files.getFileStore(path);
+
+        boolean isWindows = fileStore.supportsFileAttributeView(AclFileAttributeView.class);
+        boolean isLinuxOrMac = fileStore.supportsFileAttributeView(PosixFileAttributeView.class);
+
+        if(isWindows) {
+            try {
+                setAclPermissions(path);
+            } catch (IOException e) {
+                log.warn("Не удалось применить права ACL: {}", e.getMessage());
+                throw new FileCreatorException("Не удалось применить права ACL: " + e.getMessage(), e);
+            }
+        }
+
+        if(isLinuxOrMac) {
+            try {
+                setPosixPermissions(path);
+            } catch (IOException e) {
+                log.warn("Не удалось применить права POSIX: {}", e.getMessage());
+                throw new FileCreatorException("Не удалось применить права POSIX: " + e.getMessage(), e);
+            }
+        }
     }
 
     private void setAclPermissions(Path filePath) throws IOException {

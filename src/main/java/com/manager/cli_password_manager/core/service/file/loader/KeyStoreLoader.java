@@ -51,6 +51,7 @@ public class KeyStoreLoader {
     }
 
     public KeyStore loadKeyStore(char[] password) {
+        log.info("Unlocking the vault");
         KeyStore keyStoreInstance;
         try {
             keyStoreInstance = KeyStore.getInstance(KEYSTORE_TYPE);

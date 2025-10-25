@@ -3,10 +3,9 @@ package com.manager.cli_password_manager.core.service.command.usecase.delete;
 import com.manager.cli_password_manager.core.entity.Note;
 import com.manager.cli_password_manager.core.entity.dto.command.NoteNamePlusLoginDTO;
 import com.manager.cli_password_manager.core.exception.command.DeleteCommandException;
-import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
 import com.manager.cli_password_manager.core.repository.InMemoryVaultRepository;
-import com.manager.cli_password_manager.core.service.file.saver.StorageManager;
-import com.manager.cli_password_manager.core.service.vault.impl.VaultStateService;
+import com.manager.cli_password_manager.core.repository.NoteRepository;
+import com.manager.cli_password_manager.core.service.annotation.FileTransaction;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,11 +17,10 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class DeleteCommand {
-    private final InMemoryNotesRepository notesRepository;
+    private final NoteRepository notesRepository; //TODO Тут должен быть интерфейс NoteRepository
     private final InMemoryVaultRepository vaultRepository;
-    private final StorageManager storageManager;
-    private final VaultStateService vaultStateService;
 
+    @FileTransaction(name = "delete note transaction", noRollbackFor = DeleteCommandException.class)
     public boolean execute(NoteNamePlusLoginDTO inputNameLoginDto) {
         Optional<List<Note>> notesByName = notesRepository.findNotesByServiceName(inputNameLoginDto.name());
 
@@ -45,31 +43,9 @@ public class DeleteCommand {
                     .orElseThrow(() -> new DeleteCommandException("Cannot find note with such name and login"));
         }
 
-        try {
-            vaultRepository.deleteKey(deleting.getId());
-            notesRepository.deleteNote(deleting);
+        vaultRepository.deleteKey(deleting.getId());
+        notesRepository.deleteNote(deleting);
 
-            storageManager.transactionalFilesSave();
-
-            return true;
-        } catch (Exception any) { // rollback
-            log.error("Не удалось удалить запись. Все изменения отменяются. Причина: {}", any.getMessage());
-
-            this.rollback();
-
-            throw new DeleteCommandException("Не удалось добавить запись.", any);
-        }
-    }
-
-    private void rollback() {
-        try {
-            log.info("Rollback state in memory after trying to delete note");
-            vaultRepository.unlockVault(vaultStateService.getVaultPassword());
-            notesRepository.initialize();
-            log.info("The memory state rollback was successful");
-        } catch (Exception e) {
-            log.error("Error rollback deleting transaction");
-            throw new RuntimeException("Trouble: error rollback deleting transaction");
-        }
+        return true;
     }
 }
