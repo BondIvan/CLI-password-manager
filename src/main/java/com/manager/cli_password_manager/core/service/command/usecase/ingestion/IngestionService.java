@@ -27,16 +27,22 @@ public class IngestionService {
             throw new IngestionException("Unknown file extension");
 
         String extension = fileName.substring(indexOfDot + 1);
-        return importFormatConverter.toImportFormat(extension);
+        try {
+            return importFormatConverter.toImportFormat(extension);
+        } catch (IllegalArgumentException e) {
+            throw new IngestionException("Unknown import format", e);
+        }
     }
 
-    public Map<String, List<Note>> importFromFile(IngestionFormat format, IngestionContext context) throws IOException {
+    public Map<String, List<Note>> importFromFile(IngestionFormat format, IngestionContext context) {
         NoteIngester importer = importers.get(format);
         if(importer == null)
             throw new IngestionException("Unsupported import format: " + format);
 
         try(InputStream inputStream = Files.newInputStream(context.filePath())) {
             return importer.importNotes(context, inputStream);
+        } catch (IOException e) {
+            throw new IngestionException("Cannot find the file", e);
         }
     }
 }
