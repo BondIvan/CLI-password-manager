@@ -6,9 +6,7 @@ import com.manager.cli_password_manager.core.entity.enums.ReplaceType;
 import com.manager.cli_password_manager.core.exception.command.ReplaceCommandException;
 import com.manager.cli_password_manager.core.exception.command.ReplaceValidationException;
 import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
-import com.manager.cli_password_manager.core.repository.InMemoryVaultRepository;
-import com.manager.cli_password_manager.core.service.file.saver.StorageManager;
-import com.manager.cli_password_manager.core.service.vault.impl.VaultStateService;
+import com.manager.cli_password_manager.core.service.annotation.FileTransaction;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,11 +20,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReplaceCommand {
     private final InMemoryNotesRepository notesRepository;
-    private final InMemoryVaultRepository vaultRepository;
-    private final VaultStateService vaultStateService;
-    private final StorageManager storageManager;
     private final Map<ReplaceType, Replacement> replaceManager;
 
+    @FileTransaction(name = "replace note transaction",
+            noRollbackFor = {ReplaceCommandException.class, ReplaceValidationException.class})
     public boolean execute(InputReplaceDTO inputReplaceDTO) {
         Optional<List<Note>> optionalNotes = notesRepository.findNotesByServiceName(inputReplaceDTO.serviceName());
 
@@ -54,34 +51,9 @@ public class ReplaceCommand {
         if(replacement == null)
             throw new ReplaceCommandException("replacement for this type [" + inputReplaceDTO.type().getTitle() + "] note found");
 
-        try {
-            Note replaced = replacement.replace(replacingNote, inputReplaceDTO.value());
-            notesRepository.updateNote(replacingNote, replaced);
+        Note replaced = replacement.replace(replacingNote, inputReplaceDTO.value());
+        notesRepository.updateNote(replacingNote, replaced);
 
-            storageManager.transactionalFilesSave();
-
-            return true;
-        } catch (ReplaceValidationException v) {
-            log.warn("Ошибка входных данных длял замены: {}", v.getMessage());
-            throw v;
-        } catch (Exception any) { // rollback
-            log.error("Не удалось изменить запись. Все изменения отменяются. Причина: {}", any.getMessage());
-
-            this.rollback();
-
-            throw new ReplaceCommandException("Не удалось изменить запись.", any);
-        }
-    }
-
-    private void rollback() {
-        try {
-            log.info("Rollback state in memory after trying to replcae note");
-            vaultRepository.unlockVault(vaultStateService.getVaultPassword());
-            notesRepository.initialize();
-            log.info("The memory state rollback was successful");
-        } catch (Exception e) {
-            log.error("Error rollback replace transaction");
-            throw new RuntimeException("Trouble: error rollback replacing transaction");
-        }
+        return true;
     }
 }

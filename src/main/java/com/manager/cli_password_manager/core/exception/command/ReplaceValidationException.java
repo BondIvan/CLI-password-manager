@@ -4,4 +4,8 @@ public class ReplaceValidationException extends RuntimeException {
     public ReplaceValidationException(String message) {
         super(message);
     }
+
+    public ReplaceValidationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
