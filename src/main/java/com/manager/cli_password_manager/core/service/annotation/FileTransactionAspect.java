@@ -2,7 +2,7 @@ package com.manager.cli_password_manager.core.service.annotation;
 
 import com.manager.cli_password_manager.core.exception.file.loader.FileCreatorException;
 import com.manager.cli_password_manager.core.exception.file.loader.FileTransactionAspectException;
-import com.manager.cli_password_manager.core.repository.FileTransactionRollbackLoading;
+import com.manager.cli_password_manager.core.repository.FileTransactionCommitRollback;
 import com.manager.cli_password_manager.core.service.Pair;
 import com.manager.cli_password_manager.core.service.file.creator.SecureDirectoryCreator;
 import com.manager.cli_password_manager.core.service.file.creator.directory.ApplicationDirectory;
@@ -83,8 +83,12 @@ public class FileTransactionAspect {
 
     private void commit() throws IOException {
         log.info("Start making commit...");
-        List<Pair<Path, Path>> commitingFiles = fileTransactionManager.getPendingFiles();
 
+        // save tmp files
+        Set<FileTransactionCommitRollback> savingRepo = fileTransactionManager.getRepoParticipants();
+        savingRepo.forEach(FileTransactionCommitRollback::saveToFile);
+
+        List<Pair<Path, Path>> commitingFiles = fileTransactionManager.getPendingFiles();
         if(commitingFiles.isEmpty()) {
             log.warn("There are no files for transaction commit");
             return;
@@ -114,9 +118,9 @@ public class FileTransactionAspect {
     private void rollback(Path tmpDirectory, FileTransaction fileTransaction) {
         log.warn("Rolling back transaction - {} ...", tmpDirectory);
 
-        Set<FileTransactionRollbackLoading> repoParticipants = fileTransactionManager.getRepoParticipants();
+        Set<FileTransactionCommitRollback> repoParticipants = fileTransactionManager.getRepoParticipants();
 
-        for(FileTransactionRollbackLoading rollbackLoading: repoParticipants) {
+        for(FileTransactionCommitRollback rollbackLoading: repoParticipants) {
             try {
                 rollbackLoading.rollbackFileState();
             } catch (Exception e) {

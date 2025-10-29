@@ -1,7 +1,7 @@
 package com.manager.cli_password_manager.core.service.annotation;
 
 import com.manager.cli_password_manager.core.exception.file.loader.TransactionManagerException;
-import com.manager.cli_password_manager.core.repository.FileTransactionRollbackLoading;
+import com.manager.cli_password_manager.core.repository.FileTransactionCommitRollback;
 import com.manager.cli_password_manager.core.service.Pair;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +39,7 @@ public class FileTransactionManager {
         ftc.addFile(originalPath, tmpPath);
     }
 
-    public void registerRepoParticipant(FileTransactionRollbackLoading participant) {
+    public void registerRepoParticipant(FileTransactionCommitRollback participant) {
         FileTransactionContext ftc = getCurrentContext().orElseThrow(
                 () -> new TransactionManagerException("Repo cannot be the participant for rollback state: no active transaction")
         );
@@ -53,7 +53,7 @@ public class FileTransactionManager {
                 .orElse(Collections.emptyList());
     }
 
-    public Set<FileTransactionRollbackLoading> getRepoParticipants() {
+    public Set<FileTransactionCommitRollback> getRepoParticipants() {
         return getCurrentContext()
                 .map(FileTransactionContext::getRepoParticipant)
                 .orElse(Collections.emptySet());

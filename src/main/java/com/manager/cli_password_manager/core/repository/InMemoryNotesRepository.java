@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @Slf4j
 @Repository
-public class InMemoryNotesRepository implements NoteRepository, FileTransactionRollbackLoading {
+public class InMemoryNotesRepository implements NoteRepository, FileTransactionCommitRollback {
     private final AccessLoader accessLoader;
     private final FileTransactionManager fileTransactionManager;
     private final SecureFileCreator fileCreator;
@@ -45,6 +45,7 @@ public class InMemoryNotesRepository implements NoteRepository, FileTransactionR
         initialize();
     }
 
+    @Override
     public void saveToFile() {
         try {
             Optional<Path> appTmpSavingDir = fileTransactionManager.getCurrentTransactionalDirectory();
@@ -76,17 +77,12 @@ public class InMemoryNotesRepository implements NoteRepository, FileTransactionR
         }
 
         notes.computeIfAbsent(newNote.getName().toLowerCase(), k -> new ArrayList<>()).add(newNote);
-
-        this.saveToFile();
     }
 
     @Override
     public void update(Map<String, List<Note>> m) {
         fileTransactionManager.registerRepoParticipant(this);
-
         this.notes = new HashMap<>(m);
-
-        this.saveToFile();
     }
 
     @Override
@@ -112,8 +108,6 @@ public class InMemoryNotesRepository implements NoteRepository, FileTransactionR
 
         deleteNote(oldNote);
         addNote(newNote);
-
-        this.saveToFile();
     }
 
     @Override
@@ -136,8 +130,6 @@ public class InMemoryNotesRepository implements NoteRepository, FileTransactionR
 
         if(deletingFrom.isEmpty()) // delete empty list
             notes.remove(deletedNote.getName().toLowerCase());
-
-        this.saveToFile();
     }
 
     @Override

@@ -22,7 +22,7 @@ import java.util.Set;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class InMemoryVaultRepository implements VaultRepository, FileTransactionRollbackLoading {
+public class InMemoryVaultRepository implements VaultRepository, FileTransactionCommitRollback {
     private final KeyStoreLoader keyStoreLoader;
     private final VaultStateService vaultStateService;
     private final FileTransactionManager fileTransactionManager;
@@ -30,6 +30,7 @@ public class InMemoryVaultRepository implements VaultRepository, FileTransaction
 
     private KeyStore keyStoreInstance;
 
+    @Override
     public void saveToFile() {
         try {
             Optional<Path> appTmpSavingDir = fileTransactionManager.getCurrentTransactionalDirectory();
@@ -83,10 +84,7 @@ public class InMemoryVaultRepository implements VaultRepository, FileTransaction
     @Override
     public void updateKey(String aliasId, SecretKey newKey) {
         fileTransactionManager.registerRepoParticipant(this);
-
         addKey(aliasId, newKey); // will be updated automatically inside
-
-        this.saveToFile();
     }
 
     @Override
@@ -131,8 +129,6 @@ public class InMemoryVaultRepository implements VaultRepository, FileTransaction
             log.error("Cannot set key to the keyStore: {}", e.getMessage());
             throw new VaultException("Cannot set key to the keyStore: " + e.getMessage(), e);
         }
-
-        this.saveToFile();
     }
 
     @Override
@@ -155,8 +151,6 @@ public class InMemoryVaultRepository implements VaultRepository, FileTransaction
             log.error("Cannot delete key from the keyStore: {}", e.getMessage());
             throw new VaultException("Cannot delete key from the keyStore: " + e.getMessage(), e);
         }
-
-        this.saveToFile();
     }
 
     @Override

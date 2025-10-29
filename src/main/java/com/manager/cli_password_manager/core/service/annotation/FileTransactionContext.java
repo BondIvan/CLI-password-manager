@@ -1,6 +1,6 @@
 package com.manager.cli_password_manager.core.service.annotation;
 
-import com.manager.cli_password_manager.core.repository.FileTransactionRollbackLoading;
+import com.manager.cli_password_manager.core.repository.FileTransactionCommitRollback;
 import com.manager.cli_password_manager.core.service.Pair;
 import lombok.Getter;
 
@@ -18,7 +18,7 @@ import java.util.Set;
 public class FileTransactionContext {
     private final Path tmpSavingDirectory;
     private final List<Pair<Path, Path>> pendingFiles;
-    private final Set<FileTransactionRollbackLoading> repoParticipant;
+    private final Set<FileTransactionCommitRollback> repoParticipant;
 
     public FileTransactionContext(Path tmpSavingDirectory) {
         this.tmpSavingDirectory = tmpSavingDirectory;
@@ -32,7 +32,7 @@ public class FileTransactionContext {
         );
     }
 
-    public void addRepoParticipant(FileTransactionRollbackLoading participant) {
+    public void addRepoParticipant(FileTransactionCommitRollback participant) {
         repoParticipant.add(participant);
     }
 }
