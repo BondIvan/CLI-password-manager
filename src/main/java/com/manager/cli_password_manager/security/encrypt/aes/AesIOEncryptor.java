@@ -2,7 +2,7 @@ package com.manager.cli_password_manager.security.encrypt.aes;
 
 import com.manager.cli_password_manager.core.entity.dto.io.EncryptedExportContainer;
 import com.manager.cli_password_manager.core.entity.enums.IOEncryptorAlgorithm;
-import com.manager.cli_password_manager.core.exception.IO.IngestionFileProtectedException;
+import com.manager.cli_password_manager.core.exception.IO.ingestion.IngestionFileProtectedException;
 import com.manager.cli_password_manager.core.exception.security.CryptoAesOperationException;
 import com.manager.cli_password_manager.security.encrypt.IOEncryptor;
 import lombok.RequiredArgsConstructor;

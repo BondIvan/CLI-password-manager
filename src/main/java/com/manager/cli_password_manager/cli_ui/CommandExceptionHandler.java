@@ -1,7 +1,7 @@
 package com.manager.cli_password_manager.cli_ui;
 
 import com.manager.cli_password_manager.cli_ui.output.ShellHelper;
-import com.manager.cli_password_manager.core.exception.IO.IngestionCommandException;
+import com.manager.cli_password_manager.core.exception.IO.ingestion.IngestionCommandException;
 import com.manager.cli_password_manager.core.exception.Initialization.InitializerException;
 import com.manager.cli_password_manager.core.exception.clipboard.ClipboardException;
 import com.manager.cli_password_manager.core.exception.command.AddCommandException;

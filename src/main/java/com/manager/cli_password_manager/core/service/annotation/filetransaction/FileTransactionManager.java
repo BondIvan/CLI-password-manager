@@ -1,4 +1,4 @@
-package com.manager.cli_password_manager.core.service.annotation;
+package com.manager.cli_password_manager.core.service.annotation.filetransaction;
 
 import com.manager.cli_password_manager.core.exception.file.loader.TransactionManagerException;
 import com.manager.cli_password_manager.core.repository.FileTransactionCommitRollback;

@@ -5,7 +5,7 @@ import com.manager.cli_password_manager.core.entity.dto.command.NoteNamePlusLogi
 import com.manager.cli_password_manager.core.exception.command.DeleteCommandException;
 import com.manager.cli_password_manager.core.repository.InMemoryVaultRepository;
 import com.manager.cli_password_manager.core.repository.NoteRepository;
-import com.manager.cli_password_manager.core.service.annotation.FileTransaction;
+import com.manager.cli_password_manager.core.service.annotation.filetransaction.FileTransaction;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

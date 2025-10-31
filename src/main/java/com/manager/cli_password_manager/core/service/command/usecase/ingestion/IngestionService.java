@@ -3,7 +3,7 @@ package com.manager.cli_password_manager.core.service.command.usecase.ingestion;
 import com.manager.cli_password_manager.core.entity.Note;
 import com.manager.cli_password_manager.core.entity.converter.StringIngestionFormatConverter;
 import com.manager.cli_password_manager.core.entity.enums.IngestionFormat;
-import com.manager.cli_password_manager.core.exception.IO.IngestionException;
+import com.manager.cli_password_manager.core.exception.IO.ingestion.IngestionException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -6,7 +6,7 @@ import com.manager.cli_password_manager.core.entity.enums.ReplaceType;
 import com.manager.cli_password_manager.core.exception.command.ReplaceCommandException;
 import com.manager.cli_password_manager.core.exception.command.ReplaceValidationException;
 import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
-import com.manager.cli_password_manager.core.service.annotation.FileTransaction;
+import com.manager.cli_password_manager.core.service.annotation.filetransaction.FileTransaction;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

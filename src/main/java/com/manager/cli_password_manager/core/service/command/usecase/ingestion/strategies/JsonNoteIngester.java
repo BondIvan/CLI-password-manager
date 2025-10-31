@@ -10,8 +10,8 @@ import com.manager.cli_password_manager.core.entity.dto.io.EncryptedExportContai
 import com.manager.cli_password_manager.core.entity.enums.Category;
 import com.manager.cli_password_manager.core.entity.enums.IOEncryptorAlgorithm;
 import com.manager.cli_password_manager.core.entity.enums.IngestionFormat;
-import com.manager.cli_password_manager.core.exception.IO.IngestionException;
-import com.manager.cli_password_manager.core.exception.IO.IngestionFileProtectedException;
+import com.manager.cli_password_manager.core.exception.IO.ingestion.IngestionException;
+import com.manager.cli_password_manager.core.exception.IO.ingestion.IngestionFileProtectedException;
 import com.manager.cli_password_manager.core.exception.security.CryptoAesOperationException;
 import com.manager.cli_password_manager.core.service.command.usecase.ingestion.IngestionContext;
 import com.manager.cli_password_manager.core.service.command.usecase.ingestion.NoteIngester;

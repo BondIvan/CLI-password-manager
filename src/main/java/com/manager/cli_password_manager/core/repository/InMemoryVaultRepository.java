@@ -3,7 +3,7 @@ package com.manager.cli_password_manager.core.repository;
 import com.manager.cli_password_manager.core.exception.vault.VaultException;
 import com.manager.cli_password_manager.core.service.file.creator.SecureFileCreator;
 import com.manager.cli_password_manager.core.service.file.loader.KeyStoreLoader;
-import com.manager.cli_password_manager.core.service.annotation.FileTransactionManager;
+import com.manager.cli_password_manager.core.service.annotation.filetransaction.FileTransactionManager;
 import com.manager.cli_password_manager.core.service.vault.impl.VaultStateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

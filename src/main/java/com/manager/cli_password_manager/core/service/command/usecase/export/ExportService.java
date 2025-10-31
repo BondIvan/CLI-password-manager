@@ -1,6 +1,6 @@
 package com.manager.cli_password_manager.core.service.command.usecase.export;
 
-import com.manager.cli_password_manager.core.exception.export.ExportException;
+import com.manager.cli_password_manager.core.exception.IO.export.ExportException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

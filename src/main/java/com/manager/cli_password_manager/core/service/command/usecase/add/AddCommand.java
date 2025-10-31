@@ -5,7 +5,7 @@ import com.manager.cli_password_manager.core.entity.dto.command.InputAddDTO;
 import com.manager.cli_password_manager.core.exception.clipboard.ClipboardException;
 import com.manager.cli_password_manager.core.exception.command.AddCommandException;
 import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
-import com.manager.cli_password_manager.core.service.annotation.FileTransaction;
+import com.manager.cli_password_manager.core.service.annotation.filetransaction.FileTransaction;
 import com.manager.cli_password_manager.core.service.clipboard.ClipboardService;
 import com.manager.cli_password_manager.core.service.password.PasswordGenerator;
 import com.manager.cli_password_manager.core.service.password.PasswordValidation;

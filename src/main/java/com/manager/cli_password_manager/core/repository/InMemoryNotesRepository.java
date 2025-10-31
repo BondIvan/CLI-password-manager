@@ -4,7 +4,7 @@ import com.manager.cli_password_manager.core.entity.Note;
 import com.manager.cli_password_manager.core.exception.repository.InMemoryRepositoryException;
 import com.manager.cli_password_manager.core.service.file.creator.SecureFileCreator;
 import com.manager.cli_password_manager.core.service.file.loader.AccessLoader;
-import com.manager.cli_password_manager.core.service.annotation.FileTransactionManager;
+import com.manager.cli_password_manager.core.service.annotation.filetransaction.FileTransactionManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 

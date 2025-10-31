@@ -1,4 +1,4 @@
-package com.manager.cli_password_manager.core.service.annotation;
+package com.manager.cli_password_manager.core.service.annotation.filetransaction;
 
 import com.manager.cli_password_manager.core.exception.file.loader.FileCreatorException;
 import com.manager.cli_password_manager.core.exception.file.loader.FileTransactionAspectException;
@@ -144,12 +144,9 @@ public class FileTransactionAspect {
         }
 
         // rollback needed
-        if(fileTransaction.rollbackFor().length > 0) {
-            for(Class<? extends Throwable> rollbackExceptionClass: fileTransaction.rollbackFor()) {
-                if(rollbackExceptionClass.isInstance(throwable))
-                    return true;
-            }
-            return false;
+        for(Class<? extends Throwable> rollbackExceptionClass: fileTransaction.rollbackFor()) {
+            if(rollbackExceptionClass.isInstance(throwable))
+                return true;
         }
 
         return (throwable instanceof RuntimeException || throwable instanceof Error);
