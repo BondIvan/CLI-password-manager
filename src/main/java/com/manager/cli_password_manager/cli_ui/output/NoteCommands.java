@@ -233,7 +233,8 @@ public class NoteCommands { //TODO Сделать класс для отобра
                     help = "Имя сервиса, для которого нужно изменить данные.") String serviceName,
             @ShellOption(arity = 1, value = {"--login", "-l", "-lg"}, defaultValue = ShellOption.NULL,
                     help = "Логин для уточнения, если для сервиса несколько записей.") String login,
-            @ShellOption(arity = 1, value = {"--type", "-t"}, valueProvider = ReplaceTypeValueProvider.class) Optional<String> replaceType,
+            @ShellOption(arity = 1, value = {"--type", "-t"}, valueProvider = ReplaceTypeValueProvider.class,
+                    help = "Возможные варианты: name, login, category, password") Optional<String> replaceType,
             @ShellOption(arity = 1, value = {"--value", "-v"},
                     help = "Для изменения пароля не вводите пароль в самой команде") Optional<String> value
     ) {
@@ -292,7 +293,7 @@ public class NoteCommands { //TODO Сделать класс для отобра
 
         Map<String, List<NoteNamePlusLoginDTO>> sortedByPwned = result.stream()
                 .collect(Collectors.groupingBy(
-                        o -> String.valueOf(o.isPwned()),
+                        o -> o.isPwned() ? "Compromised" : "Secure",
                         Collectors.mapping(CheckerResult::namePlusLoginDTO, Collectors.toList())
                 ));
         Function<NoteNamePlusLoginDTO, String> formatter = dto -> String.format("%s (%s)", dto.name(), dto.login());

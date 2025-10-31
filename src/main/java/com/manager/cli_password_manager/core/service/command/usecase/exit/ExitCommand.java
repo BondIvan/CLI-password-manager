@@ -14,7 +14,7 @@ public class ExitCommand implements Quit.Command {
     private final ClipboardService clipboardService;
     private final InMemoryVaultRepository inMemoryVaultRepository;
 
-    @ShellMethod(key = "exit", value = "Exit from cli application")
+    @ShellMethod(key = {"exit", "quit"}, value = "Exit from cli application")
     public void exit() {
         clipboardService.clearClipboardBeforeShutdown();
         inMemoryVaultRepository.lockVault();
