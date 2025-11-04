@@ -17,7 +17,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class DeleteCommand {
-    private final NoteRepository notesRepository; //TODO Тут должен быть интерфейс NoteRepository
+    private final NoteRepository notesRepository;
     private final InMemoryVaultRepository vaultRepository;
 
     @FileTransaction(name = "delete note transaction", noRollbackFor = DeleteCommandException.class)

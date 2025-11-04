@@ -1,6 +1,6 @@
 package com.manager.cli_password_manager.cli_ui.consoleProgress;
 
-import com.manager.cli_password_manager.cli_ui.output.ShellHelper;
+import com.manager.cli_password_manager.cli_ui.output.ShellOutputHelper;
 import com.manager.cli_password_manager.core.progressReporter.ProgressReporter;
 import org.springframework.stereotype.Component;
 
@@ -8,10 +8,10 @@ import org.springframework.stereotype.Component;
 public class ConsoleProgressReporter implements ProgressReporter {
     private static final int WIDTH = 40;
     private int lastLineLength = 0;
-    private final ShellHelper shellHelper;
+    private final ShellOutputHelper shellOutputHelper;
 
-    public ConsoleProgressReporter(ShellHelper shellHelper) {
-        this.shellHelper = shellHelper;
+    public ConsoleProgressReporter(ShellOutputHelper shellOutputHelper) {
+        this.shellOutputHelper = shellOutputHelper;
     }
 
     @Override
@@ -21,21 +21,21 @@ public class ConsoleProgressReporter implements ProgressReporter {
         if (progressLine.length() < lastLineLength) {
             progressLine += " ".repeat(lastLineLength - progressLine.length());
         }
-        shellHelper.printWithoutLineBreak(progressLine);
+        shellOutputHelper.printWithoutLineBreak(progressLine);
         lastLineLength = progressLine.length(); // Сохраняем длину, чтобы правильно очистить в следующий раз
     }
 
     @Override
     public void complete(String finalMessage) {
         clearLine();
-        shellHelper.printSuccess("✓ " + finalMessage);
+        shellOutputHelper.printSuccess("✓ " + finalMessage);
         lastLineLength = 0;
     }
 
     @Override
     public void error(String errorMessage) {
         clearLine();
-        shellHelper.printError("✗ ERROR: " + errorMessage);
+        shellOutputHelper.printError("✗ ERROR: " + errorMessage);
         lastLineLength = 0;
     }
 
@@ -46,7 +46,7 @@ public class ConsoleProgressReporter implements ProgressReporter {
 
     private void clearLine() {
         if (lastLineLength > 0) {
-            shellHelper.print("\r" + " ".repeat(lastLineLength) + "\r");
+            shellOutputHelper.print("\r" + " ".repeat(lastLineLength) + "\r");
         }
     }
 

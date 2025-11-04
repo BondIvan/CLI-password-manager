@@ -1,6 +1,6 @@
 package com.manager.cli_password_manager.cli_ui.output.command;
 
-import com.manager.cli_password_manager.cli_ui.output.ShellHelper;
+import com.manager.cli_password_manager.cli_ui.output.ShellOutputHelper;
 import com.manager.cli_password_manager.cli_ui.output.ShellInputHelper;
 import com.manager.cli_password_manager.cli_ui.output.TableUtils;
 import com.manager.cli_password_manager.core.entity.converter.StringCategoryConverter;
@@ -48,7 +48,7 @@ public class CrudCommands {
     private final DeleteCommand deleteCommand;
     private final ReplaceCommand replaceCommand;
 
-    private final ShellHelper shellHelper;
+    private final ShellOutputHelper shellOutputHelper;
     private final ShellInputHelper shellInputHelper;
 
     private final ClipboardService clipboardService;
@@ -70,13 +70,13 @@ public class CrudCommands {
         List<DecryptedNoteDTO> notesByName = getCommand.getNotesByName(serviceName);
 
         if(notesByName.isEmpty())
-            return shellHelper.getErrorMessage("Service with such name not found");
+            return shellOutputHelper.getErrorMessage("Service with such name not found");
 
         if(notesByName.size() == 1) {
             DecryptedNoteDTO searched = notesByName.getFirst();
             if(clipboardService.isClipboardAvailable()) {
                 clipboardService.copyToClipboard(searched.password());
-                shellHelper.printInfo("Copied text will be removed after " + clearClipboardAfterSeconds + " seconds");
+                shellOutputHelper.printInfo("Copied text will be removed after " + clearClipboardAfterSeconds + " seconds");
                 return searched.displayWithoutPassword();
             }
 
@@ -92,9 +92,9 @@ public class CrudCommands {
             TableModel model = new ArrayTableModel(namePlusLogin.toArray(String[][]::new));
             TableBuilder tableBuilder = new TableBuilder(model);
 
-            shellHelper.print(tableBuilder.build().render(200));
+            shellOutputHelper.print(tableBuilder.build().render(200));
 
-            return shellHelper.getWarningMessage("You have several services with such name. Please provide login for the desired service");
+            return shellOutputHelper.getWarningMessage("You have several services with such name. Please provide login for the desired service");
         }
 
         Optional<DecryptedNoteDTO> searchedNote = notesByName.stream()
@@ -102,12 +102,12 @@ public class CrudCommands {
                 .findFirst();
 
         if(searchedNote.isEmpty())
-            return shellHelper.getErrorMessage("Service with such login not found");
+            return shellOutputHelper.getErrorMessage("Service with such login not found");
 
         DecryptedNoteDTO searched = searchedNote.get();
         if(clipboardService.isClipboardAvailable()) {
             clipboardService.copyToClipboard(searched.password());
-            shellHelper.printInfo("Copied text will be removed after " + clearClipboardAfterSeconds + " seconds");
+            shellOutputHelper.printInfo("Copied text will be removed after " + clearClipboardAfterSeconds + " seconds");
             return searched.displayWithoutPassword();
         }
 
@@ -131,7 +131,7 @@ public class CrudCommands {
         TableModel model = new ArrayTableModel(array2D.toArray(String[][]::new));
         TableBuilder tableBuilder = new TableBuilder(model);
 
-        shellHelper.print(tableBuilder.build().render(200));
+        shellOutputHelper.print(tableBuilder.build().render(200));
     }
 
     @ShellMethod(key = "add", value = "add a new service")
@@ -143,7 +143,7 @@ public class CrudCommands {
             @ShellOption(arity = 1, value = {"--exclude", "-e"}, defaultValue = ShellOption.NULL) char[] excludedSymbols
     ) {
         if(login.isEmpty())
-            return shellHelper.getErrorMessage("Missing mandatory option '--login'");
+            return shellOutputHelper.getErrorMessage("Missing mandatory option '--login'");
 
         String password = null;
         if(!isAutoGeneratePassword)
@@ -193,12 +193,12 @@ public class CrudCommands {
                     help = "Для изменения пароля не вводите пароль в самой команде") Optional<String> value
     ) {
         if(replaceType.isEmpty())
-            return shellHelper.getErrorMessage("Missing mandatory option '--type'");
+            return shellOutputHelper.getErrorMessage("Missing mandatory option '--type'");
 
         ReplaceType type = stringReplaceTypeConverter.toReplaceType(replaceType.get());
 
         if(value.isEmpty() && type != ReplaceType.PASSWORD)
-            return shellHelper.getErrorMessage("Missing mandatory option '--value'");
+            return shellOutputHelper.getErrorMessage("Missing mandatory option '--value'");
 
         String newValue;
         if(type == ReplaceType.PASSWORD)

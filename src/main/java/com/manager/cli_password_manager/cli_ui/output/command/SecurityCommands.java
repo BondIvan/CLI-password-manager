@@ -1,7 +1,7 @@
 package com.manager.cli_password_manager.cli_ui.output.command;
 
 import com.manager.cli_password_manager.cli_ui.consoleProgress.ConsoleProgressReporter;
-import com.manager.cli_password_manager.cli_ui.output.ShellHelper;
+import com.manager.cli_password_manager.cli_ui.output.ShellOutputHelper;
 import com.manager.cli_password_manager.cli_ui.output.TableUtils;
 import com.manager.cli_password_manager.core.entity.converter.StringCheckingApiConverter;
 import com.manager.cli_password_manager.core.entity.dto.checker.CheckerResult;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 public class SecurityCommands {
     private final CheckCommand checkCommand;
 
-    private final ShellHelper shellHelper;
+    private final ShellOutputHelper shellOutputHelper;
 
     private final ConsoleProgressReporter consoleProgressReporter;
     private final StringCheckingApiConverter stringCheckingApiConverter;
@@ -51,7 +51,7 @@ public class SecurityCommands {
         CheckingApi checkingApi = stringCheckingApiConverter.toCheckingApi(apiType);
 
         if(serviceName.isEmpty() && login.isPresent())
-            shellHelper.printWarning("Specified login without service name");
+            shellOutputHelper.printWarning("Specified login without service name");
 
         InputCheckDTO inputCheckDTO = new InputCheckDTO(
                 checkingApi,
@@ -74,6 +74,6 @@ public class SecurityCommands {
         TableModel model = new ArrayTableModel(array2D.toArray(String[][]::new));
         TableBuilder tableBuilder = new TableBuilder(model);
 
-        shellHelper.print(tableBuilder.build().render(200));
+        shellOutputHelper.print(tableBuilder.build().render(200));
     }
 }

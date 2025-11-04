@@ -1,7 +1,7 @@
 package com.manager.cli_password_manager.core.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.manager.cli_password_manager.cli_ui.output.ShellHelper;
+import com.manager.cli_password_manager.cli_ui.output.ShellOutputHelper;
 import com.manager.cli_password_manager.cli_ui.output.ShellInputHelper;
 import org.jline.reader.Completer;
 import org.jline.reader.History;
@@ -52,8 +52,8 @@ public class AppConfig {
     }
 
     @Bean
-    public ShellHelper shellHelper(@Lazy Terminal terminal) {
-        return new ShellHelper(terminal);
+    public ShellOutputHelper shellHelper(@Lazy Terminal terminal) {
+        return new ShellOutputHelper(terminal);
     }
 
     @Bean

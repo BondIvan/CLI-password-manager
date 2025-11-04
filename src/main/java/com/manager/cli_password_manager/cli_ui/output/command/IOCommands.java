@@ -1,6 +1,6 @@
 package com.manager.cli_password_manager.cli_ui.output.command;
 
-import com.manager.cli_password_manager.cli_ui.output.ShellHelper;
+import com.manager.cli_password_manager.cli_ui.output.ShellOutputHelper;
 import com.manager.cli_password_manager.cli_ui.output.ShellInputHelper;
 import com.manager.cli_password_manager.core.entity.converter.StringExportFormatConverter;
 import com.manager.cli_password_manager.core.entity.enums.IngestionResult;
@@ -20,7 +20,7 @@ public class IOCommands {
     private final ExportCommand exportCommand;
     private final IngestionCommand ingestionCommand;
 
-    private final ShellHelper shellHelper;
+    private final ShellOutputHelper shellOutputHelper;
     private final ShellInputHelper shellInputHelper;
 
     private final StringExportFormatConverter stringExportFormatConverter;
@@ -49,12 +49,12 @@ public class IOCommands {
                     help = "Specify the absolute path to the file being imported here. If the path contains backslashes, " +
                             "replace them with forward slashes or duplicate them.") String path
     ) {
-        shellHelper.printInfo("Identical data will be replaced with new data.");
+        shellOutputHelper.printInfo("Identical data will be replaced with new data.");
 
         IngestionResult result = ingestionCommand.execute(path, null);
 
         if(result == IngestionResult.PASSWORD_REQUIRED) {
-            shellHelper.printWarning("This file is password protected");
+            shellOutputHelper.printWarning("This file is password protected");
             String inputPassword = shellInputHelper.readInput("Please enter the password to access the file - ", true);
             result = ingestionCommand.execute(path, inputPassword);
         }
