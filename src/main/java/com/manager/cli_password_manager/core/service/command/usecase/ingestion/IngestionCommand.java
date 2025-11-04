@@ -7,8 +7,8 @@ import com.manager.cli_password_manager.core.entity.enums.IngestionResult;
 import com.manager.cli_password_manager.core.exception.IO.ingestion.IngestionCommandException;
 import com.manager.cli_password_manager.core.exception.IO.ingestion.IngestionException;
 import com.manager.cli_password_manager.core.exception.IO.ingestion.IngestionFileProtectedException;
-import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
 import com.manager.cli_password_manager.core.repository.InMemoryVaultRepository;
+import com.manager.cli_password_manager.core.repository.NoteRepository;
 import com.manager.cli_password_manager.core.service.annotation.filetransaction.FileTransaction;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class IngestionCommand {
-    private final InMemoryNotesRepository notesRepository;
+    private final NoteRepository notesRepository;
     private final InMemoryVaultRepository vaultRepository;
     private final IngestionService ingestionService;
     private final IngestionMerge ingestionMerge;

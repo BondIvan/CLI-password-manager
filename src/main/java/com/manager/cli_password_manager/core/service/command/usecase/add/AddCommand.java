@@ -4,7 +4,7 @@ import com.manager.cli_password_manager.core.entity.Note;
 import com.manager.cli_password_manager.core.entity.dto.command.InputAddDTO;
 import com.manager.cli_password_manager.core.exception.clipboard.ClipboardException;
 import com.manager.cli_password_manager.core.exception.command.AddCommandException;
-import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
+import com.manager.cli_password_manager.core.repository.NoteRepository;
 import com.manager.cli_password_manager.core.service.annotation.filetransaction.FileTransaction;
 import com.manager.cli_password_manager.core.service.clipboard.ClipboardService;
 import com.manager.cli_password_manager.core.service.password.PasswordGenerator;
@@ -20,7 +20,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class AddCommand {
-    private final InMemoryNotesRepository notesRepository;
+    private final NoteRepository notesRepository;
     @Qualifier("aesPasswordEncryptor")
     private final PasswordEncryptor passwordEncryptor;
     private final PasswordValidation passwordValidation;
@@ -28,7 +28,7 @@ public class AddCommand {
     private final ClipboardService clipboardService;
 
     public AddCommand(
-            InMemoryNotesRepository notesRepository,
+            NoteRepository notesRepository,
             PasswordValidation validation,
             PasswordGenerator generator,
             PasswordEncryptor passwordEncryptor,

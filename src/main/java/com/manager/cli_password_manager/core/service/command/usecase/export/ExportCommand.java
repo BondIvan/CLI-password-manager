@@ -1,7 +1,7 @@
 package com.manager.cli_password_manager.core.service.command.usecase.export;
 
 import com.manager.cli_password_manager.core.exception.command.ExportCommandException;
-import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
+import com.manager.cli_password_manager.core.repository.NoteRepository;
 import com.manager.cli_password_manager.core.service.file.creator.SecureFileCreator;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.nio.file.Paths;
 @Service
 @RequiredArgsConstructor
 public class ExportCommand {
-    private final InMemoryNotesRepository notesRepository;
+    private final NoteRepository notesRepository;
     private final SecureFileCreator fileCreator;
     private final ExportService exportService;
 

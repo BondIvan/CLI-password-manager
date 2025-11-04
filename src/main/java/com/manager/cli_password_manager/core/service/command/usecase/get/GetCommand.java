@@ -4,7 +4,7 @@ import com.manager.cli_password_manager.core.entity.Note;
 import com.manager.cli_password_manager.core.entity.dto.command.DecryptedNoteDTO;
 import com.manager.cli_password_manager.core.entity.mapper.NoteMapper;
 import com.manager.cli_password_manager.core.exception.command.GetCommandException;
-import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
+import com.manager.cli_password_manager.core.repository.NoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class GetCommand {
-    private final InMemoryNotesRepository notesRepository;
+    private final NoteRepository notesRepository;
     private final NoteMapper noteMapper;
 
     public DecryptedNoteDTO getNoteById(String id) {

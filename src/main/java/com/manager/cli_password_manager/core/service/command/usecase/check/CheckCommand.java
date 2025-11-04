@@ -6,11 +6,9 @@ import com.manager.cli_password_manager.core.entity.dto.command.InputCheckDTO;
 import com.manager.cli_password_manager.core.entity.dto.command.NoteNamePlusLoginDTO;
 import com.manager.cli_password_manager.core.entity.enums.CheckingApi;
 import com.manager.cli_password_manager.core.entity.mapper.NoteMapper;
-import com.manager.cli_password_manager.core.exception.checker.CheckerException;
-import com.manager.cli_password_manager.core.exception.checker.HIBPCheckerException;
 import com.manager.cli_password_manager.core.exception.command.CheckCommandException;
 import com.manager.cli_password_manager.core.progressReporter.ProgressReporter;
-import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
+import com.manager.cli_password_manager.core.repository.NoteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +23,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class CheckCommand {
-    private final InMemoryNotesRepository notesRepository;
+    private final NoteRepository notesRepository;
     private final Map<CheckingApi, Checker> checkers;
     private final NoteMapper noteMapper;
 

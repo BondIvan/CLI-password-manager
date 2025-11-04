@@ -5,7 +5,7 @@ import com.manager.cli_password_manager.core.entity.dto.command.InputReplaceDTO;
 import com.manager.cli_password_manager.core.entity.enums.ReplaceType;
 import com.manager.cli_password_manager.core.exception.command.ReplaceCommandException;
 import com.manager.cli_password_manager.core.exception.command.ReplaceValidationException;
-import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
+import com.manager.cli_password_manager.core.repository.NoteRepository;
 import com.manager.cli_password_manager.core.service.annotation.filetransaction.FileTransaction;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class ReplaceCommand {
-    private final InMemoryNotesRepository notesRepository;
+    private final NoteRepository notesRepository;
     private final Map<ReplaceType, Replacement> replaceManager;
 
     @FileTransaction(name = "replace note transaction",
