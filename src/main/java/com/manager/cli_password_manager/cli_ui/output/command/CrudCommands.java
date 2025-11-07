@@ -1,7 +1,7 @@
 package com.manager.cli_password_manager.cli_ui.output.command;
 
-import com.manager.cli_password_manager.cli_ui.output.ShellOutputHelper;
 import com.manager.cli_password_manager.cli_ui.output.ShellInputHelper;
+import com.manager.cli_password_manager.cli_ui.output.ShellOutputHelper;
 import com.manager.cli_password_manager.cli_ui.output.TableUtils;
 import com.manager.cli_password_manager.core.entity.converter.StringCategoryConverter;
 import com.manager.cli_password_manager.core.entity.converter.StringReplaceTypeConverter;
@@ -31,7 +31,6 @@ import org.springframework.shell.table.ArrayTableModel;
 import org.springframework.shell.table.TableBuilder;
 import org.springframework.shell.table.TableModel;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -55,6 +54,7 @@ public class CrudCommands {
     private final StringCategoryConverter stringCategoryConverter;
     private final StringReplaceTypeConverter stringReplaceTypeConverter;
     private final TableUtils tableUtils;
+    private final ConsoleTimerReporter consoleTimerReporter;
 
     @Value("${shell.clearClipboardAfterSeconds}")
     private long clearClipboardAfterSeconds;
@@ -72,46 +72,80 @@ public class CrudCommands {
         if(notesByName.isEmpty())
             return shellOutputHelper.getErrorMessage("Service with such name not found");
 
-        if(notesByName.size() == 1) {
-            DecryptedNoteDTO searched = notesByName.getFirst();
-            if(clipboardService.isClipboardAvailable()) {
-                clipboardService.copyToClipboard(searched.password());
-                shellOutputHelper.printInfo("Copied text will be removed after " + clearClipboardAfterSeconds + " seconds");
-                return searched.displayWithoutPassword();
-            }
+        if(notesByName.size() == 1)
+            return processFoundNote(notesByName.getFirst());
 
-            return searched.displayWithPassword();
-        }
-
-        if(login == null) {
-            List<String[]> namePlusLogin = new ArrayList<>();
-
-            for(DecryptedNoteDTO note: notesByName)
-                namePlusLogin.add(new String[]{note.name() + " <-> ", note.login()});
-
-            TableModel model = new ArrayTableModel(namePlusLogin.toArray(String[][]::new));
-            TableBuilder tableBuilder = new TableBuilder(model);
-
-            shellOutputHelper.print(tableBuilder.build().render(200));
-
-            return shellOutputHelper.getWarningMessage("You have several services with such name. Please provide login for the desired service");
-        }
+        if(login == null)
+            return handleSeveralNoteAccounts(notesByName);
 
         Optional<DecryptedNoteDTO> searchedNote = notesByName.stream()
                 .filter(nt -> nt.login().equalsIgnoreCase(login))
                 .findFirst();
 
-        if(searchedNote.isEmpty())
-            return shellOutputHelper.getErrorMessage("Service with such login not found");
+        return searchedNote
+                .map(this::processFoundNote)
+                .orElse(shellOutputHelper.getErrorMessage("Service with such login not found"));
+    }
 
-        DecryptedNoteDTO searched = searchedNote.get();
+    private String processFoundNote(DecryptedNoteDTO dtoNote) {
         if(clipboardService.isClipboardAvailable()) {
-            clipboardService.copyToClipboard(searched.password());
+            clipboardService.copyToClipboard(dtoNote.password());
             shellOutputHelper.printInfo("Copied text will be removed after " + clearClipboardAfterSeconds + " seconds");
-            return searched.displayWithoutPassword();
+
+            return dtoNote.displayWithoutPassword();
         }
 
-        return searched.displayWithPassword();
+        shellOutputHelper.print(dtoNote.displayWithPassword());
+
+        timer();
+        hide();
+
+        return "";
+    }
+
+    private String handleSeveralNoteAccounts(List<DecryptedNoteDTO> notesByName) {
+        List<NoteNamePlusLoginDTO> namePlusLoginDTOs = notesByName.stream()
+                .map(note -> new NoteNamePlusLoginDTO(note.name(), note.login()))
+                .toList();
+        Function<NoteNamePlusLoginDTO, String> formatter = dto -> String.format("%s <-> %s", dto.name(), dto.login());
+        UnaryOperator<List<NoteNamePlusLoginDTO>> unaryOperator = UnaryOperator.identity();
+
+        List<String[]> array2D = tableUtils.preparedDataForTable(
+                Map.of(namePlusLoginDTOs.getFirst().name(), namePlusLoginDTOs),
+                formatter,
+                unaryOperator
+        );
+
+        TableModel model = new ArrayTableModel(array2D.toArray(String[][]::new));
+        TableBuilder tableBuilder = new TableBuilder(model);
+
+        shellOutputHelper.print(tableBuilder.build().render(200));
+
+        return shellOutputHelper.getWarningMessage("You have several services with such name. " +
+                "Please provide login for the desired service");
+    }
+
+    private void timer() {
+        try {
+            for (int i = consoleTimerReporter.getTime(); i > 0; i--) {
+                consoleTimerReporter.report(i, "seconds");
+                Thread.sleep(1000);
+            }
+            consoleTimerReporter.complete("seconds");
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            consoleTimerReporter.error("Timer was interrupted");
+        }
+    }
+
+    private void hide() {
+        shellOutputHelper.printWithoutLineBreak("\r");
+        shellOutputHelper.printWithoutLineBreak("\033[K");
+
+        shellOutputHelper.printWithoutLineBreak("\033[1A");
+        shellOutputHelper.printWithoutLineBreak("\r");
+        shellOutputHelper.printWithoutLineBreak("\033[K");
+        shellOutputHelper.printWithoutLineBreak("Password: *****");
     }
 
     @ShellMethod(key = "get-all", value = "get all service names")
