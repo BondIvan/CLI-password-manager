@@ -79,9 +79,15 @@ public class ClipboardService {
     }
 
     private Clipboard getSystemClipboardSafely() {
+        log.info("ClipboardService: is headless - {}", GraphicsEnvironment.isHeadless());
+        if(GraphicsEnvironment.isHeadless()) {
+            log.warn("Application is in headless mode. Clipboard not available.");
+            return null;
+        }
+
         try {
             return Toolkit.getDefaultToolkit().getSystemClipboard();
-        } catch (HeadlessException e) {
+        } catch (Throwable e) {
             log.warn("Clipboard is not available. Reason: {}", e.getMessage());
             return null;
         }
