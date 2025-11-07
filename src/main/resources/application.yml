@@ -23,7 +23,6 @@ shell:
     accessFile: access.json
     MP: validation.bin
   export:
-    path: Downloads
     name: export_file.json
 
 api:

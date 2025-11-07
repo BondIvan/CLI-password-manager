@@ -3,6 +3,7 @@ package com.manager.cli_password_manager.core.service.command.usecase.export;
 import com.manager.cli_password_manager.core.exception.command.ExportCommandException;
 import com.manager.cli_password_manager.core.repository.NoteRepository;
 import com.manager.cli_password_manager.core.service.file.creator.SecureFileCreator;
+import com.manager.cli_password_manager.core.service.file.creator.directory.ApplicationDirectoryManager;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @Slf4j
 @Service
@@ -20,11 +20,8 @@ public class ExportCommand {
     private final NoteRepository notesRepository;
     private final SecureFileCreator fileCreator;
     private final ExportService exportService;
+    private final ApplicationDirectoryManager directoryManager;
 
-    @Value("${shell.file.userHome}")
-    private String userHome;
-    @Value("${shell.export.path}")
-    private String exportPath;
     @Value("${shell.export.name}")
     private String exportFileName;
 
@@ -32,9 +29,8 @@ public class ExportCommand {
 
     @PostConstruct
     public void init() {
-        String homePath = System.getProperty(userHome);
-        Path userDownloads = Paths.get(homePath, exportPath);
-        this.exportFilePath = userDownloads.resolve(exportFileName);
+        Path dirPath = directoryManager.getApplicationDirectory();
+        this.exportFilePath = dirPath.resolve(exportFileName);
     }
 
     public void execute(ExportFormat format, String passwordProtection) {
