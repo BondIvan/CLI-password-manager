@@ -32,7 +32,7 @@ public abstract class AbstractFileCreator {
 
             secureFile(path);
         } catch (IOException e) {
-            log.error("Cannot create file/directory by next path - [{}] by reason: {}", path, e.getCause().getMessage());
+            log.error("Cannot create file/directory by next path - [{}] by reason: {}", path, e.getMessage());
             throw new FileCreatorException("Creating file/directory error: " + e.getMessage(), e);
         }
     }
