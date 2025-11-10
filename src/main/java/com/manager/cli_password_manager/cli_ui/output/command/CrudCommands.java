@@ -56,7 +56,7 @@ public class CrudCommands {
     private final TableUtils tableUtils;
     private final ConsoleTimerReporter consoleTimerReporter;
 
-    @Value("${shell.clearClipboardAfterSeconds}")
+    @Value("${clipboard.clearAfterSeconds}")
     private long clearClipboardAfterSeconds;
 
     @ShellMethod(key = "get", value = "get service information. Use --login to specify if there are multiple entries." +

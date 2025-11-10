@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Component
 public class ClipboardService {
-    @Value("${shell.clearClipboardAfterSeconds}")
+    @Value("${clipboard.clearAfterSeconds}")
     private long removeAfterSeconds;
 
     private final Clipboard clipboard;
