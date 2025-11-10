@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
-@Repository
+@Repository("memoryVaultRepository")
 @RequiredArgsConstructor
 public class InMemoryVaultRepository implements VaultRepository, FileTransactionCommitRollback {
     private final KeyStoreLoader keyStoreLoader;

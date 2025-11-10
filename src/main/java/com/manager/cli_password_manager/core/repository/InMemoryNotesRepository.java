@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
-@Repository
+@Repository("memoryNotesRepository")
 public class InMemoryNotesRepository implements NoteRepository, FileTransactionCommitRollback {
     private final AccessLoader accessLoader;
     private final FileTransactionManager fileTransactionManager;
