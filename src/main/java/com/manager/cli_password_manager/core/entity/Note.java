@@ -57,31 +57,9 @@ public class Note {
         return newNote;
     }
 
-//    public Note(String name, String login) {
-//        this.id = ULID.nextULID();
-//        this.name = name;
-//        this.login = login;
-//        this.category = Category.NO_CATEGORY;
-//    }
-//
-//    public Note(String name, String login, Category category, String encryptedPassword) {
-//        this.id = ULID.nextULID();
-//        this.name = name;
-//        this.login = login;
-//        this.category = category;
-//    }
-//
-//    public Note(String id, Category category, String name, String login, String password) {
-//        this.id = id;
-//        this.category = category;
-//        this.name = name;
-//        this.login = login;
-//        this.password = password;
-//    }
-
     @Override
     public String toString() {
-        return String.format("Id: %s\nName: %s\nCategory: %s\nLogin: %s\nPassword: %s",
+        return String.format("[Id: %s| Name: %s| Category: %s| Login: %s| Password: %s]",
                 id, name, category, login, "*****");
     }
 
