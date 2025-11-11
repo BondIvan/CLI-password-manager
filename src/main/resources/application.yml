@@ -2,7 +2,11 @@ spring:
   application:
     name: cli-password-manager
   profiles:
-    active: file-storage, shell
+    active: file-storage, shell, console-and-file
+
+logging:
+  file:
+    local-path: ${user.home}/.cli-password-manager/logs
 
 clipboard:
   clearAfterSeconds: 30
