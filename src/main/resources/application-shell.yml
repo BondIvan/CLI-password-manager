@@ -1,0 +1,14 @@
+spring:
+  shell:
+    command:
+      quit:
+        enabled: false
+    interactive:
+      enabled: true
+
+shell:
+  out:
+    info: CYAN
+    success: GREEN
+    warning: YELLOW
+    error: RED

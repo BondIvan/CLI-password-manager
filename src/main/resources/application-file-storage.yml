@@ -1,0 +1,9 @@
+shell:
+  file:
+    userHome: user.home
+    rootDirectory: .cli-password-manager
+    keyStoreFile: vault.ks
+    accessFile: access.json
+    MP: validation.bin
+  export:
+    name: export_file.json

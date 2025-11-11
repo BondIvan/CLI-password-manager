@@ -44,7 +44,7 @@ public class ApplicationDirectory implements ApplicationDirectoryManager {
                 directoryCreator.createAndSecure(applicationDirectory);
                 log.info("Application directory created successfully.");
             } catch (FileCreatorException e) {
-                log.error("Failed to create application directory.");
+                log.error("Failed to create application directory", e);
                 throw new InitializerException("Не удалось создать директорию для данных приложения: " + e.getMessage(), e);
             }
         } else {

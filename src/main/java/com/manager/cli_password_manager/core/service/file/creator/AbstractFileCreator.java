@@ -32,7 +32,7 @@ public abstract class AbstractFileCreator {
 
             secureFile(path);
         } catch (IOException e) {
-            log.error("Cannot create file/directory by next path - [{}] by reason: {}", path, e.getMessage());
+            log.error("Cannot create file/directory by next path - [{}] by reason", path, e);
             throw new FileCreatorException("Creating file/directory error: " + e.getMessage(), e);
         }
     }
@@ -45,7 +45,7 @@ public abstract class AbstractFileCreator {
 
             return securedPath;
         } catch (IOException e) {
-            log.error("Cannot create tmp file/directory by next path - [{}] by reason: {}", path, e.getCause().getMessage());
+            log.error("Cannot create tmp file/directory by next path - [{}] by reason", path, e);
             throw new FileCreatorException("Creating tmp file/directory error: " + e.getMessage(), e);
         }
     }
@@ -60,7 +60,7 @@ public abstract class AbstractFileCreator {
             try {
                 setAclPermissions(path);
             } catch (IOException e) {
-                log.warn("Не удалось применить права ACL: {}", e.getMessage());
+                log.error("Не удалось применить права ACL", e);
                 throw new FileCreatorException("Не удалось применить права ACL: " + e.getMessage(), e);
             }
         }
@@ -69,7 +69,7 @@ public abstract class AbstractFileCreator {
             try {
                 setPosixPermissions(path);
             } catch (IOException e) {
-                log.warn("Не удалось применить права POSIX: {}", e.getMessage());
+                log.error("Не удалось применить права POSIX", e);
                 throw new FileCreatorException("Не удалось применить права POSIX: " + e.getMessage(), e);
             }
         }

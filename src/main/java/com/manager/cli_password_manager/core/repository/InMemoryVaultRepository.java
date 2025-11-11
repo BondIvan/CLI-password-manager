@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
-@Repository
+@Repository("memoryVaultRepository")
 @RequiredArgsConstructor
 public class InMemoryVaultRepository implements VaultRepository, FileTransactionCommitRollback {
     private final KeyStoreLoader keyStoreLoader;
@@ -98,13 +98,13 @@ public class InMemoryVaultRepository implements VaultRepository, FileTransaction
         KeyStore.SecretKeyEntry secretKeyEntry;
         try {
             if (!keyStoreInstance.containsAlias(aliasId)) {
-                log.error("There is no such id {} in keyStore for getting", aliasId);
+                log.warn("There is no such id {} in keyStore for getting", aliasId);
                 throw new VaultException("There is no such id " + aliasId + " in keyStore");
             }
 
             secretKeyEntry = (KeyStore.SecretKeyEntry) keyStoreInstance.getEntry(aliasId, protectionParameter);
         } catch (Exception e) {
-            log.error("Key store get key error: {}", e.getMessage());
+            log.error("Key store get key error", e);
             throw new VaultException("Key store get key error: " + e.getMessage(), e);
         }
 
@@ -126,7 +126,7 @@ public class InMemoryVaultRepository implements VaultRepository, FileTransaction
         try {
             keyStoreInstance.setEntry(aliasId, secretKeyEntry, protectionParameter);
         } catch (KeyStoreException e) {
-            log.error("Cannot set key to the keyStore: {}", e.getMessage());
+            log.error("Cannot set key to the keyStore", e);
             throw new VaultException("Cannot set key to the keyStore: " + e.getMessage(), e);
         }
     }
@@ -142,13 +142,13 @@ public class InMemoryVaultRepository implements VaultRepository, FileTransaction
 
         try {
             if (!keyStoreInstance.containsAlias(aliasId)) {
-                log.info("There is no such id {} in keyStore for deleting", aliasId);
+                log.warn("There is no such id {} in keyStore for deleting", aliasId);
                 throw new VaultException("There is no such id " + aliasId + " in keyStore");
             }
 
             keyStoreInstance.deleteEntry(aliasId);
         } catch (KeyStoreException e) {
-            log.error("Cannot delete key from the keyStore: {}", e.getMessage());
+            log.error("Cannot delete key from the keyStore", e);
             throw new VaultException("Cannot delete key from the keyStore: " + e.getMessage(), e);
         }
     }

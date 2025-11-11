@@ -2,6 +2,7 @@ package com.manager.cli_password_manager.security.encrypt.aes;
 
 import com.manager.cli_password_manager.core.exception.security.CryptoAesOperationException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.AEADBadTagException;
@@ -22,6 +23,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AesCryptoService {
@@ -40,6 +42,7 @@ public class AesCryptoService {
             Cipher cipher = createCipher(Cipher.ENCRYPT_MODE, secretKey, iv);
             return cipher.doFinal(plainText);
         } catch (GeneralSecurityException e) {
+            log.error("Encrypt aes exception", e);
             throw new CryptoAesOperationException("Encrypt aes exception", e);
         }
     }
@@ -49,8 +52,10 @@ public class AesCryptoService {
             Cipher cipher = createCipher(Cipher.DECRYPT_MODE, secretKey, iv);
             return cipher.doFinal(cipherText);
         } catch (AEADBadTagException e) {
+            log.error("Decryption failed: authentication tag mismatch. Likely wrong key or tampered data", e);
             throw new CryptoAesOperationException("Decryption failed: authentication tag mismatch. Likely wrong key or tampered data", e);
         } catch (GeneralSecurityException e) {
+            log.error("Decryption failed due to a security configuration issue", e);
             throw new CryptoAesOperationException("Decryption failed due to a security configuration issue", e);
         }
     }
@@ -62,6 +67,7 @@ public class AesCryptoService {
 
             return new CipherOutputStream(outputStream, cipher);
         } catch (GeneralSecurityException e) {
+            log.error("Fail creating encrypting stream", e);
             throw new CryptoAesOperationException("Fail creating encrypting stream", e);
         }
     }
@@ -73,6 +79,7 @@ public class AesCryptoService {
 
             return new CipherInputStream(inputStream, cipher);
         } catch (GeneralSecurityException e) {
+            log.error("Fail creating decrypting stream", e);
             throw new CryptoAesOperationException("Fail creating decrypting stream", e);
         }
     }
@@ -92,6 +99,7 @@ public class AesCryptoService {
 
             return new SecretKeySpec(secretKey.getEncoded(), "AES");
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            log.error("Error generating encrypt key", e);
             throw new CryptoAesOperationException("Error generating encrypt key", e);
         } finally {
             Arrays.fill(password,'\0');

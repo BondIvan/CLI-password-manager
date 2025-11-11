@@ -1,29 +1,19 @@
 spring:
   application:
     name: cli-password-manager
-
+  profiles:
+    active: file-storage, shell, console
   shell:
     command:
-      quit:
+      stacktrace:
         enabled: false
-    interactive:
-      enabled: true
 
-shell:
-  out:
-    info: CYAN
-    success: GREEN
-    warning: YELLOW
-    error: RED
-  clearClipboardAfterSeconds: 30
+logging:
   file:
-    userHome: user.home
-    rootDirectory: .cli-password-manager
-    keyStoreFile: vault.ks
-    accessFile: access.json
-    MP: validation.bin
-  export:
-    name: export_file.json
+    local-path: ${user.home}/.cli-password-manager/logs
+
+clipboard:
+  clearAfterSeconds: 30
 
 api:
   hibp:

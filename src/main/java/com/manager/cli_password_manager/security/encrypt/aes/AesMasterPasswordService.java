@@ -4,6 +4,7 @@ import com.manager.cli_password_manager.core.exception.security.CryptoAesOperati
 import com.manager.cli_password_manager.core.exception.security.MasterPasswordException;
 import com.manager.cli_password_manager.security.hash.Hashing;
 import com.manager.cli_password_manager.security.mp.MasterPasswordAssembly;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Arrays;
 
+@Slf4j
 @Service
 public class AesMasterPasswordService implements MasterPasswordAssembly {
     private final AesCryptoService aesCryptoService;
@@ -43,6 +45,7 @@ public class AesMasterPasswordService implements MasterPasswordAssembly {
 
             return saltPlusConcatenated;
         } catch (CryptoAesOperationException e) {
+            log.error("Setup master password failed", e);
             throw new MasterPasswordException("Setup master password failed", e);
         }
     }

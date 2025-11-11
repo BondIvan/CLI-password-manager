@@ -52,11 +52,11 @@ public class FileTransactionAspect {
 
             return result;
         } catch (Throwable e) {
-            log.warn("Some exception during saving transaction [{}]", fileTransaction.name());
+            log.error("Some exception during saving transaction [{}]", fileTransaction.name(), e);
 
             // decision about rollback
             if(shouldRollback(e, fileTransaction)) {
-                log.warn("Rollback required. Start rollback...");
+                log.info("Rollback required. Start rollback...");
                 rollback(tmpDirectory, fileTransaction); // delete tmp files and do not replace original files
             } else {
                 log.warn("Rollback not needed. Cleaning up tmp files");
@@ -129,8 +129,8 @@ public class FileTransactionAspect {
                             throw new FileTransactionAspectException(String.format("Error: Failed to rollback state for participant: %s. By reason: %s",
                                     rollbackLoading.getClass().getSimpleName(), e));
                     case RollbackFailureAction.LOG_WARNING ->
-                            log.error("Error: Failed to rollback state for participant: {}. By reason: {}",
-                                    rollbackLoading.getClass().getSimpleName(), e.getMessage());
+                            log.error("Error: Failed to rollback state for participant: {}. By reason: ",
+                                    rollbackLoading.getClass().getSimpleName(), e);
                 }
             }
         }

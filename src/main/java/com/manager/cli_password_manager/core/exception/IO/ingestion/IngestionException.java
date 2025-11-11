@@ -5,6 +5,10 @@ public class IngestionException extends RuntimeException {
         super(message);
     }
 
+    public IngestionException(Throwable cause) {
+        super(cause);
+    }
+
     public IngestionException(String message, Throwable cause) {
         super(message, cause);
     }
