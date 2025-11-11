@@ -55,6 +55,7 @@ public class HIBPChecker implements Checker {
             return checkHashViaHIBP(hash);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            log.error("Checking was interrupted", e);
             throw new HIBPCheckerException("Checking was interrupted", e);
         } catch (Exception e) {
             throw new HIBPCheckerException(e);
@@ -96,7 +97,7 @@ public class HIBPChecker implements Checker {
 
             return hashes.contains(hash.substring(5));
         } catch (Exception e) {
-            log.error("Send HTTP request error: {}", e.getMessage());
+            log.error("Send HTTP request error", e);
             throw new HIBPCheckerException("Send HTTP request error: " + e.getMessage(), e);
         }
     }
@@ -110,7 +111,7 @@ public class HIBPChecker implements Checker {
 
             return processingHashNumberLengthCorrect(hashNumber).toUpperCase();
         } catch (NoSuchAlgorithmException e) {
-            log.error("Cannot make a hash from the password: {}", e.getMessage());
+            log.error("Cannot make a hash from the password", e);
             throw new HIBPCheckerException("Cannot make a hash from the password: " + e.getMessage(), e);
         }
     }

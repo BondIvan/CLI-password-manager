@@ -64,7 +64,7 @@ public class CheckCommand {
                     return Collections.emptyList();
                 }
 
-                log.error("Error during check: {}", e.getMessage());
+                log.error("Error during check", e);
                 results.add(new CheckerResult(
                         new NoteNamePlusLoginDTO(note.getName(), note.getLogin()),
                         null,
