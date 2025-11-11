@@ -1,18 +1,19 @@
 package com.manager.cli_password_manager.cli_ui.init;
 
 import com.manager.cli_password_manager.cli_ui.output.ShellOutputHelper;
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.ApplicationContext;
 import com.manager.cli_password_manager.core.exception.security.CryptoAesOperationException;
 import com.manager.cli_password_manager.core.exception.security.MasterPasswordException;
 import com.manager.cli_password_manager.core.repository.InMemoryNotesRepository;
 import com.manager.cli_password_manager.core.repository.VaultRepository;
+import com.manager.cli_password_manager.core.service.clipboard.ClipboardService;
 import com.manager.cli_password_manager.security.mp.MasterPasswordService;
 import lombok.extern.slf4j.Slf4j;
 import org.jline.reader.LineReader;
 import org.jline.reader.UserInterruptException;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -29,6 +30,7 @@ public class Initializer implements ApplicationRunner {
     private final ApplicationContext applicationContext;
     private final VaultRepository vaultRepository;
     private final InMemoryNotesRepository notesRepository;
+    private final ClipboardService clipboardService;
 
     public Initializer(
             MasterPasswordService masterPasswordService,
@@ -36,13 +38,15 @@ public class Initializer implements ApplicationRunner {
             InMemoryNotesRepository notesRepository,
             ShellOutputHelper shellOutputHelper,
             @Lazy LineReader lineReader,
-            ApplicationContext applicationContext) {
+            ApplicationContext applicationContext,
+            ClipboardService clipboardService) {
         this.masterPasswordService = masterPasswordService;
         this.vaultRepository = vaultRepository;
         this.notesRepository = notesRepository;
         this.shellOutputHelper = shellOutputHelper;
         this.lineReader = lineReader;
         this.applicationContext = applicationContext;
+        this.clipboardService = clipboardService;
     }
 
     @Override
@@ -54,6 +58,12 @@ public class Initializer implements ApplicationRunner {
         } else {
             login();
         }
+
+        String cbStatus = clipboardService.isClipboardAvailable() ?
+                "available" :
+                "unavailable";
+
+        shellOutputHelper.printInfo("Clipboard status - " + cbStatus);
     }
 
     private void setupNewMasterPassword() {
