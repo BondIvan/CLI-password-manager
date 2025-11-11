@@ -1,8 +1,10 @@
 spring:
+  main:
+    banner-mode: off
   application:
     name: cli-password-manager
   profiles:
-    active: file-storage, shell, console
+    active: file-storage, shell, file
   shell:
     command:
       stacktrace:
