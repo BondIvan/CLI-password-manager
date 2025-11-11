@@ -38,7 +38,7 @@ public class MasterPasswordService {
             Path dirPath = directoryManager.getApplicationDirectory();
             this.masterPasswordPathFile = dirPath.resolve(masterPasswordFileName);
         } catch (Exception e) {
-            log.error("Failed to initialize master password service: {}", e.getMessage());
+            log.error("Failed to initialize master password service", e);
             throw new InitializerException("Failed to initialize master password service: " + e.getMessage());
         }
     }

@@ -45,7 +45,7 @@ public class KeyStoreLoader {
             Path dirPath = directoryManager.getApplicationDirectory();
             this.vaultPathFile = dirPath.resolve(vaultFileName);
         } catch (Exception e) {
-            log.error("Failed to initialize vault loader service: {}", e.getMessage());
+            log.error("Failed to initialize vault loader service", e);
             throw new InitializerException("Failed to initialize vault loader service: " + e.getMessage());
         }
     }
@@ -66,8 +66,10 @@ public class KeyStoreLoader {
                 saveKeyStore(keyStoreInstance, password);
             }
         } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
+            log.error("Initialization keyStore error", e);
             throw new FileLoaderException("Ошибка инициализации KeyStore: " + e.getMessage(), e);
         } catch (IOException e) {
+            log.error("Error reading/loading KeyStore file (possibly incorrect master password or file corruption)", e);
             throw new FileLoaderException("Ошибка чтения/загрузки файла KeyStore (возможно, неверный мастер-пароль или файл поврежден): " + vaultPathFile, e);
         }
         return keyStoreInstance;
@@ -81,6 +83,7 @@ public class KeyStoreLoader {
         try(FileOutputStream fos = new FileOutputStream(path.toFile())) {
             keyStore.store(fos, password);
         } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
+            log.error("Error saving KeyStore file", e);
             throw new FileLoaderException("Ошибка сохранения файла KeyStore: " + path, e);
         }
     }

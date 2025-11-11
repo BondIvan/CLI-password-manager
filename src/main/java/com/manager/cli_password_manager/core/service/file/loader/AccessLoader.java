@@ -44,7 +44,7 @@ public class AccessLoader {
             Path dirPath = directoryManager.getApplicationDirectory();
             this.accessFilePath = dirPath.resolve(accessFileName);
         } catch (Exception e) {
-            log.error("Failed to initialize access loader service: {}", e.getMessage());
+            log.error("Failed to initialize access loader service", e);
             throw new InitializerException("Failed to initialize access loader service: " + e.getMessage());
         }
     }
@@ -59,10 +59,10 @@ public class AccessLoader {
 
             return objectMapper.readValue(accessFilePath.toFile(), new TypeReference<TreeMap<String, List<Note>>>(){});
         } catch (FileCreatorException e) {
-            log.error("Cannot create access file: {}", e.getMessage());
+            log.error("Cannot create access file", e);
             throw new FileLoaderException("Cannot create access file: " + e.getMessage(), e);
         } catch (Exception e) {
-            log.error("Load access file error: {}", e.getMessage());
+            log.error("Load access file error", e);
             throw new FileLoaderException("Load access file error: " + e.getMessage(), e);
         }
     }
@@ -76,7 +76,7 @@ public class AccessLoader {
         try {
             objectMapper.writeValue(path.toFile(), notes);
         } catch (Exception e) {
-            log.error("Save access file error: {}", e.getMessage());
+            log.error("Save access file error", e);
             throw new FileLoaderException("Save access file error: " + e.getMessage(), e);
         }
     }

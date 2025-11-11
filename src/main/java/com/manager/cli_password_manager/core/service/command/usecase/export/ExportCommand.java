@@ -43,6 +43,7 @@ public class ExportCommand {
             fileCreator.createAndSecure(exportFilePath);
             exportService.exportToFile(exportFilePath, format, exportContext);
         } catch (IOException e) {
+            log.error("Export failed", e);
             throw new ExportCommandException("Export failed: " + e.getMessage(), e);
         }
     }
