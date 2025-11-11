@@ -2,7 +2,11 @@ spring:
   application:
     name: cli-password-manager
   profiles:
-    active: file-storage, shell, console-and-file
+    active: file-storage, shell, console
+  shell:
+    command:
+      stacktrace:
+        enabled: false
 
 logging:
   file:
