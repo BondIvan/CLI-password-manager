@@ -114,7 +114,7 @@ public class JsonNoteIngester implements NoteIngester {
                 return plainImport(bais);
             }
         } catch (IngestionFileProtectedException e) {
-            throw new IngestionException("Wrong password");
+            throw new IngestionException("Wrong password", e);
         } catch (CryptoAesOperationException e) {
             throw new IngestionException("Unknown decryption exception", e);
         }

@@ -1,7 +1,7 @@
 package com.manager.cli_password_manager.cli_ui.output.command;
 
-import com.manager.cli_password_manager.cli_ui.output.ShellOutputHelper;
 import com.manager.cli_password_manager.cli_ui.output.ShellInputHelper;
+import com.manager.cli_password_manager.cli_ui.output.ShellOutputHelper;
 import com.manager.cli_password_manager.core.entity.converter.StringExportFormatConverter;
 import com.manager.cli_password_manager.core.entity.enums.IngestionResult;
 import com.manager.cli_password_manager.core.service.command.usecase.export.ExportCommand;
@@ -60,7 +60,7 @@ public class IOCommands {
         }
 
         return result == IngestionResult.SUCCESS ?
-                "Success" :
-                "Import failed. Check the password";
+                shellOutputHelper.getSuccessMessage("Success") :
+                shellOutputHelper.getErrorMessage("Import failed. Check the password");
     }
 }

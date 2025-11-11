@@ -4,6 +4,7 @@ import com.manager.cli_password_manager.core.entity.Note;
 import com.manager.cli_password_manager.core.entity.converter.StringIngestionFormatConverter;
 import com.manager.cli_password_manager.core.entity.enums.IngestionFormat;
 import com.manager.cli_password_manager.core.exception.IO.ingestion.IngestionException;
+import com.manager.cli_password_manager.core.exception.IO.ingestion.IngestionFileProtectedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,8 @@ public class IngestionService {
 
         try(InputStream inputStream = Files.newInputStream(context.filePath())) {
             return importer.importNotes(context, inputStream);
+        } catch (IngestionFileProtectedException e) {
+            throw new IngestionException(e);
         } catch (IOException e) {
             throw new IngestionException("Cannot find the file", e);
         }

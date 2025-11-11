@@ -5,10 +5,12 @@ import com.manager.cli_password_manager.core.entity.dto.io.MergeResult;
 import com.manager.cli_password_manager.core.entity.enums.IngestionFormat;
 import com.manager.cli_password_manager.core.entity.enums.IngestionResult;
 import com.manager.cli_password_manager.core.exception.IO.ingestion.IngestionCommandException;
+import com.manager.cli_password_manager.core.exception.IO.ingestion.IngestionException;
 import com.manager.cli_password_manager.core.exception.IO.ingestion.IngestionFileProtectedException;
 import com.manager.cli_password_manager.core.repository.InMemoryVaultRepository;
 import com.manager.cli_password_manager.core.repository.NoteRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Files;
@@ -18,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class IngestionUseCase {
@@ -41,8 +44,14 @@ public class IngestionUseCase {
         try {
             ingestionFormat = ingestionService.getImportFormatFromFileExtension(path);
             imported = ingestionService.importFromFile(ingestionFormat, ingestionContext);
-        } catch (IngestionFileProtectedException e) {
-            return IngestionResult.PASSWORD_REQUIRED;
+        } catch (IngestionException e) {
+            if(e.getCause() instanceof IngestionFileProtectedException) {
+                log.warn("Incorrect password for the imported file");
+                return IngestionResult.PASSWORD_REQUIRED;
+            }
+
+            log.error("Import failed", e);
+            throw new IngestionCommandException("Import failed", e);
         }
 
         Map<String, List<Note>> notes = noteRepository.getAllNotes();
