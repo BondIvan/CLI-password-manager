@@ -34,7 +34,7 @@ jobs:
       - name: build windows exe file
         run: |
           jpackage --name "cli-password-manager" `
-          --app-version ${{ env.APP_VERSION }} `
+          --app-version "$env:APP_VERSION" `
           --vendor "com.manager" `
           --input target/ `
           --main-jar cli-password-manager-0.0.1-SNAPSHOT.jar `
@@ -47,5 +47,5 @@ jobs:
       - name: create github release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "cli-password-manager-${{ github.ref_name }}.exe"
+          artifacts: "cli-password-manager-${{ env.APP_VERSION }}.exe"
           token: ${{ secrets.GITHUB_TOKEN }}
