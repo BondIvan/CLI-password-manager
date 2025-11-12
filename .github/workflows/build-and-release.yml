@@ -27,7 +27,7 @@ jobs:
 
       - name: set APP_VERSION env variable for WiX Toolset
         run: |
-          $versionTag = ${{ github.ref_name }}
+          $versionTag = "${{ github.ref_name }}"
           $version = $versionTag.Substring(1)
           echo "APP_VERSION=$version" >> $env.GITHUB_ENV
 
