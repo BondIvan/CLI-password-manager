@@ -1,0 +1,35 @@
+name: Build and release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: checkout code
+        uses: action/checkout@v4
+
+      - name: set up jdk 21
+        uses: action/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: install WiX Toolset
+        run: choco install wixtoolset
+
+      - name: build with maven
+        run: mvn clean package
+
+      - name: build windows exe file
+        run: jpackage --name "cli-password-manager" --app-version ${{ github.ref_name }} --vendor "com.manager" --input target/ --main-jar cli-password-manager-0.0.1-SNAPSHOT.jar --java-options "-Dspring.output.ansi.enabled=ALWAYS" --java-options "-Dspring.shell.config.location=C:/Users/ivanb/.cli-password-manager/" --add-modules java.base,java.logging,java.management,java.naming,java.sql,java.xml,java.desktop,java.security.jgss,jdk.unsupported,java.net.http,jdk.crypto.ec --jlink-options "--strip-debug --compress 2 --no-header-files --no-man-pages" --win-console
+
+      - name: create github release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "cli-password-manager-${{ github.ref_name }}.exe"
+          token: ${{ secrets.GITHUB_TOKEN }}
