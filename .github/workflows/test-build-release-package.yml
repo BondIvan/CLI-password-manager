@@ -24,6 +24,7 @@ jobs:
         run: mvn -B clean verify
 
   build:
+    needs: tests
     strategy:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
@@ -65,19 +66,30 @@ jobs:
       - name: build with maven
         run: mvn -B clean package -DskipTests
 
-      - name: set APP_VERSION env variable for WiX Toolset
+      - name: set APP_VERSION variable from tag
         run: |
           $versionTag = "${{ github.ref_name }}"
-          if ($versionTag -eq "") { $versionTag = "v0.0.0-test" }
-          $version = $versionTag.Substring(1)
+          if ($versionTag -eq "") {
+            $version = "0.0.0-test"
+          } else {
+            $version = $versionTag.Substring(1)
+          }
           echo "APP_VERSION=$version" >> $env:GITHUB_ENV
+          echo "JAR_NAME=cli-password-manager-$version.jar" >> $env:GITHUB_ENV
         shell: pwsh
+
+      - name: set pom version from tag
+        if: env.APP_VERSION != '0.0.0-test'
+        run: mvn versions:set -DnewVersion="${{ env.APP_VERSION }}"
+
+      - name: build with maven
+        run: mvn -B clean package -DskipTests
 
       - name: set artifact name
         run: echo "ARTIFACT_NAME=cli-password-manager-${{ env.APP_VERSION }}.${{ matrix.ARTIFACT_TYPE }}" >> $env:GITHUB_ENV
         shell: bash
 
-      - name: clear old artifact # not sure
+      - name: clear old artifact
         run: Remove-Item -ErrorAction SilentlyContinue ./${{ env.ARTIFACT_NAME }}
         shell: pwsh
 
@@ -85,10 +97,9 @@ jobs:
         run: |
           $jpackageArgs = @(
             "--name", "cli-password-manager",
-            "--app-version", "${{ env.APP_VERSION }}",
             "--vendor", "com.manager",
             "--input", "target/",
-            "--main-jar", "cli-password-manager-v0.1.0.jar",
+            "--main-jar", "${{ env.JAR_NAME }}",
             "--add-modules", "java.base,java.logging,java.management,java.naming,java.sql,java.xml,java.desktop,java.security.jgss,jdk.unsupported,java.net.http,jdk.crypto.ec",
             "--jlink-options", "--strip-debug --compress 2 --no-header-files --no-man-pages",
             "--type", "${{ matrix.INSTALLER_TYPE }}"
@@ -97,6 +108,7 @@ jobs:
           if ("${{ matrix.os }}" -eq "windows-latest") {
             echo "build windows installer..."
             $jpackageArgs += @(
+              "--app-version", "${{ env.APP_VERSION }}",
               "--java-options", "-Dspring.output.ansi.enabled=ALWAYS",
               "--java-options", "-Djava.awt.headless=false",
               "--win-console",
@@ -106,7 +118,14 @@ jobs:
           }
           elseif ("${{ matrix.os }}" -eq "macos-latest") {
             echo "build macos installer..."
+            $appMacVersion = "${{ env.APP_VERSION }}".Split('.')
+            if ([int]$appMacVersion[0] -le 0) {
+              $appMacVersion = "1." + $appMacVersion[1] + "." + $appMacVersion[2]
+            } else {
+              $appMacVersion = "${{ env.APP_VERSION }}"
+            }
             $jpackageArgs += @(
+              "--app-version", $appMacVersion,
               "--java-options", "-Dspring.output.ansi.enabled=ALWAYS",
               "--java-options", "-Djava.awt.headless=false"
             )
@@ -114,21 +133,29 @@ jobs:
           elseif ("${{ matrix.os }}" -eq "ubuntu-latest") {
             echo "build linux installer..."
             $jpackageArgs += @(
+              "--app-version", "${{ env.APP_VERSION }}",
               "--java-options", "-Dspring.output.ansi.enabled=ALWAYS",
               "--java-options", "-Djava.awt.headless=false"
             )
           }
           
+          Write-Host "Running jpackage with args: $jpackageArgs"
           jpackage $jpackageArgs
+          
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "jpackage failed!"
+            exit 1
+          }
+
         shell: pwsh
 
       - name: create github release
-        if: startsWith(github.ref, 'refs/tags/v')
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "${{ env.ARTIFACT_NAME }}"
-          token: ${{ secret.GITHUB_TOKEN }}
+          artifacts: "cli-password-manager-${{ env.APP_VERSION }}.${{ matrix.ARTIFACT_TYPE }}"
+          token: ${{ secrets.GITHUB_TOKEN }}
           allowUpdates: true
+          tag: "${{ github.ref_name }}"
 
   publish-jar:
     needs: build
@@ -147,6 +174,22 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
+
+      - name: set APP_VERSION variable from tag
+        run: |
+          $versionTag = "${{ github.ref_name }}"
+          if ($versionTag -eq "") {
+            $version = "0.0.0-test"
+          } else {
+            $version = $versionTag.Substring(1)
+          }
+          $version = $versionTag.Substring(1)
+          echo "APP_VERSION=$version" >> $env:GITHUB_ENV
+        shell: pwsh
+
+      - name: Set pom.xml version from tag
+        if: env.APP_VERSION != '0.0.0-test'
+        run: mvn versions:set -DnewVersion=${{ env.APP_VERSION }}
 
       - name: publish jar to github packages
         run: mvn -B deploy -DskipTests

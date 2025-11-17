@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.manager</groupId>
 	<artifactId>cli-password-manager</artifactId>
-	<version>v0.1.0</version>
+	<version>0.1.1</version>
 	<name>cli-password-manager</name>
 	<description>CLI client for passwords</description>
 	<url/>
@@ -124,6 +124,14 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/BondIvan/CLI-password-manager</url>
+		</repository>
+	</distributionManagement>
 
 	<build>
 		<plugins>
