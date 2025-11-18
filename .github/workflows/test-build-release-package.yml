@@ -95,7 +95,7 @@ jobs:
             "--name", "cli-password-manager",
             "--vendor", "com.manager",
             "--input", "target/",
-            "--dist", "dist"
+            "--dest", "dist"
             "--main-jar", "${{ env.JAR_NAME }}",
             "--add-modules", "java.base,java.logging,java.management,java.naming,java.sql,java.xml,java.desktop,java.security.jgss,jdk.unsupported,java.net.http,jdk.crypto.ec",
             "--jlink-options", "--strip-debug --compress 2 --no-header-files --no-man-pages",
