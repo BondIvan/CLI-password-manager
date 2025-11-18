@@ -26,6 +26,7 @@ jobs:
   build:
     needs: tests
     strategy:
+#      fail-fast: false
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
         include:
@@ -62,9 +63,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y fakeroot dpkg-dev
-          
-      - name: build with maven
-        run: mvn -B clean package -DskipTests
 
       - name: set APP_VERSION variable from tag
         run: |
@@ -74,6 +72,7 @@ jobs:
           } else {
             $version = $versionTag.Substring(1)
           }
+          
           echo "APP_VERSION=$version" >> $env:GITHUB_ENV
           echo "JAR_NAME=cli-password-manager-$version.jar" >> $env:GITHUB_ENV
         shell: pwsh
@@ -85,20 +84,18 @@ jobs:
       - name: build with maven
         run: mvn -B clean package -DskipTests
 
-      - name: set artifact name
-        run: echo "ARTIFACT_NAME=cli-password-manager-${{ env.APP_VERSION }}.${{ matrix.ARTIFACT_TYPE }}" >> $env:GITHUB_ENV
-        shell: bash
-
       - name: clear old artifact
         run: Remove-Item -ErrorAction SilentlyContinue ./${{ env.ARTIFACT_NAME }}
         shell: pwsh
 
       - name: build installer
         run: |
+          New-item -ItemType Directory -Force -Path "./dist"
           $jpackageArgs = @(
             "--name", "cli-password-manager",
             "--vendor", "com.manager",
             "--input", "target/",
+            "--dist", "dist"
             "--main-jar", "${{ env.JAR_NAME }}",
             "--add-modules", "java.base,java.logging,java.management,java.naming,java.sql,java.xml,java.desktop,java.security.jgss,jdk.unsupported,java.net.http,jdk.crypto.ec",
             "--jlink-options", "--strip-debug --compress 2 --no-header-files --no-man-pages",
@@ -108,9 +105,7 @@ jobs:
           if ("${{ matrix.os }}" -eq "windows-latest") {
             echo "build windows installer..."
             $jpackageArgs += @(
-              "--app-version", "${{ env.APP_VERSION }}",
-              "--java-options", "-Dspring.output.ansi.enabled=ALWAYS",
-              "--java-options", "-Djava.awt.headless=false",
+              "--app-version", "${{ env.APP_VERSION }}"
               "--win-console",
               "--win-dir-chooser",
               "--win-menu"
@@ -124,22 +119,21 @@ jobs:
             } else {
               $appMacVersion = "${{ env.APP_VERSION }}"
             }
-            $jpackageArgs += @(
-              "--app-version", $appMacVersion,
-              "--java-options", "-Dspring.output.ansi.enabled=ALWAYS",
-              "--java-options", "-Djava.awt.headless=false"
-            )
+          
+            $jpackageArgs += @("--app-version", $appMacVersion)
           }
           elseif ("${{ matrix.os }}" -eq "ubuntu-latest") {
             echo "build linux installer..."
-            $jpackageArgs += @(
-              "--app-version", "${{ env.APP_VERSION }}",
-              "--java-options", "-Dspring.output.ansi.enabled=ALWAYS",
-              "--java-options", "-Djava.awt.headless=false"
-            )
+            $jpackageArgs += @("--app-version", "${{ env.APP_VERSION }}")
           }
           
+          $jpackageArgs += @(
+            "--java-options", "-Dspring.output.ansi.enabled=ALWAYS",
+            "--java-options", "-Djava.awt.headless=false"
+          )
+          
           Write-Host "Running jpackage with args: $jpackageArgs"
+          
           jpackage $jpackageArgs
           
           if ($LASTEXITCODE -ne 0) {
@@ -149,13 +143,32 @@ jobs:
 
         shell: pwsh
 
+      - name: set artifact name by os
+        run: |
+          $finalName = "cli-password-manager-${{ env.APP_VERSION }}.${{ matrix.ARTIFACT_TYPE }}"
+          
+          $file = Get-ChildItem -Path "./dist" -Filter "*.${{ matrix.ARTIFACT_TYPE }}" | Select-Object -First 1
+          if ($null -eq $file) {
+            Write-Error "Artifact not found in ./dist folder"
+            exit 1
+          }
+          
+          Write-Host "Found artifact file: $($file.FullName)"
+          
+          Move-Item -Path $file.FullName -Destination "./$finalName" -Force
+          
+          echo "ARTIFACT_PATH=$finalName" >> $env.GITHUB_ENV
+        shell: pwsh
+
       - name: create github release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "cli-password-manager-${{ env.APP_VERSION }}.${{ matrix.ARTIFACT_TYPE }}"
+          artifacts: "${{ env.ARTIFACT_PATH }}"
           token: ${{ secrets.GITHUB_TOKEN }}
           allowUpdates: true
+          replacesArtifacts: true
           tag: "${{ github.ref_name }}"
+          generateReleaseNotes: true
 
   publish-jar:
     needs: build
@@ -183,12 +196,11 @@ jobs:
           } else {
             $version = $versionTag.Substring(1)
           }
-          $version = $versionTag.Substring(1)
+          
           echo "APP_VERSION=$version" >> $env:GITHUB_ENV
         shell: pwsh
 
-      - name: Set pom.xml version from tag
-        if: env.APP_VERSION != '0.0.0-test'
+      - name: set pom.xml version from tag
         run: mvn versions:set -DnewVersion=${{ env.APP_VERSION }}
 
       - name: publish jar to github packages
