@@ -20,7 +20,7 @@ public class ServiceNameValueProvider implements ValueProvider {
 
     @Override
     public List<CompletionProposal> complete(CompletionContext completionContext) {
-        String input = completionContext.currentWord();
+        String input = completionContext.currentWord().toLowerCase();
 
         if(input.isBlank())
             return new ArrayList<>();
