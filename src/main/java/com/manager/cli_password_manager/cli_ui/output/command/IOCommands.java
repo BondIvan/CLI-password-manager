@@ -2,10 +2,8 @@ package com.manager.cli_password_manager.cli_ui.output.command;
 
 import com.manager.cli_password_manager.cli_ui.output.ShellInputHelper;
 import com.manager.cli_password_manager.cli_ui.output.ShellOutputHelper;
-import com.manager.cli_password_manager.core.entity.converter.StringExportFormatConverter;
 import com.manager.cli_password_manager.core.entity.enums.IngestionResult;
 import com.manager.cli_password_manager.core.service.command.usecase.export.ExportCommand;
-import com.manager.cli_password_manager.core.service.command.usecase.export.ExportFormat;
 import com.manager.cli_password_manager.core.service.command.usecase.ingestion.IngestionCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellCommandGroup;
@@ -23,8 +21,6 @@ public class IOCommands {
     private final ShellOutputHelper shellOutputHelper;
     private final ShellInputHelper shellInputHelper;
 
-    private final StringExportFormatConverter stringExportFormatConverter;
-
     @ShellMethod(key = "export", value = "Export all services to a file")
     public String export(
             @ShellOption(arity = 1, value = {"--format", "-f"}) String format,
@@ -36,9 +32,7 @@ public class IOCommands {
             passwordProtection = shellInputHelper.readInput("Set the password protection - ", true);
         }
 
-        ExportFormat exportFormat = stringExportFormatConverter.toExportFormat(format);
-
-        exportCommand.execute(exportFormat, passwordProtection);
+        exportCommand.execute(format, passwordProtection);
 
         return "Success";
     }

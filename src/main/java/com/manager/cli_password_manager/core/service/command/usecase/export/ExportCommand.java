@@ -1,5 +1,6 @@
 package com.manager.cli_password_manager.core.service.command.usecase.export;
 
+import com.manager.cli_password_manager.core.entity.converter.StringExportFormatConverter;
 import com.manager.cli_password_manager.core.exception.command.ExportCommandException;
 import com.manager.cli_password_manager.core.repository.NoteRepository;
 import com.manager.cli_password_manager.core.service.file.creator.SecureFileCreator;
@@ -21,6 +22,7 @@ public class ExportCommand {
     private final SecureFileCreator fileCreator;
     private final ExportService exportService;
     private final ApplicationDirectoryManager directoryManager;
+    private final StringExportFormatConverter stringExportFormatConverter;
 
     @Value("${shell.export.name}")
     private String exportFileName;
@@ -33,16 +35,18 @@ public class ExportCommand {
         this.exportFilePath = dirPath.resolve(exportFileName);
     }
 
-    public void execute(ExportFormat format, String passwordProtection) {
-        ExportContext exportContext = ExportContext.builder()
+    public void execute(String format, String passwordProtection) {
+        try {
+            ExportFormat exportFormat = stringExportFormatConverter.toExportFormat(format);
+
+            ExportContext exportContext = ExportContext.builder()
                 .notes(notesRepository.getAllNotes())
                 .password(passwordProtection != null ? passwordProtection.toCharArray() : null)
                 .build();
 
-        try {
             fileCreator.createAndSecure(exportFilePath);
-            exportService.exportToFile(exportFilePath, format, exportContext);
-        } catch (IOException e) {
+            exportService.exportToFile(exportFilePath, exportFormat, exportContext);
+        }catch (IllegalArgumentException | IOException e) {
             log.error("Export failed", e);
             throw new ExportCommandException("Export failed: " + e.getMessage(), e);
         }
