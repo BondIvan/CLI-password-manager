@@ -84,9 +84,9 @@ jobs:
       - name: build with maven
         run: mvn -B clean package -DskipTests
 
-      - name: clear old artifact
-        run: Remove-Item -ErrorAction SilentlyContinue ./${{ env.ARTIFACT_NAME }}
-        shell: pwsh
+#      - name: clear old artifact
+#        run: Remove-Item -ErrorAction SilentlyContinue ./${{ env.ARTIFACT_NAME }}
+#        shell: pwsh
 
       - name: build installer
         run: |
@@ -157,7 +157,7 @@ jobs:
           
           Move-Item -Path $file.FullName -Destination "./$finalName" -Force
           
-          echo "ARTIFACT_PATH=$finalName" >> $env.GITHUB_ENV
+          echo "ARTIFACT_PATH=$finalName" >> $env:GITHUB_ENV
         shell: pwsh
 
       - name: create github release
